@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact · Small Town Systems</title>
+  <meta name="description" content="Tell us about your business. We build websites and set up Notion and Claude for local businesses in central Kansas.">
+  <meta name="theme-color" content="#E9ECEE">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/img/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <nav class="nav container" aria-label="Main">
+      <a class="brand" href="/">
+        <svg class="logo-mark" viewBox="0 0 88 86" width="44" height="43" aria-hidden="true" focusable="false"><g class="orbit" stroke="#121517" stroke-width="0.6" stroke-linejoin="round"><g class="spin spin-a"><g class="bob bob-a"><path d="M44 3L61.32 13L44 23L26.68 13Z" fill="#3FA3AE"/><path d="M26.68 13L44 23L44 43L26.68 33Z" fill="#0B5C67"/><path d="M44 23L61.32 13L61.32 33L44 43Z" fill="#084A54"/><path d="M5.5 5.5H14.5M10 5.5V16.5" transform="matrix(0.87 0.5 0 1 26.68 13)" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g></g><g class="spin spin-b"><g class="bob bob-b"><path d="M22 41.1L39.32 51.1L22 61.1L4.68 51.1Z" fill="#FFFFFF"/><path d="M4.68 51.1L22 61.1L22 81.1L4.68 71.1Z" fill="#E3E7EA"/><path d="M22 61.1L39.32 51.1L39.32 71.1L22 81.1Z" fill="#C9D0D5"/><path d="M12.6 6A3 3 0 1 0 10 10.5A3 3 0 1 1 7.4 15" transform="matrix(0.87 0.5 0 1 4.68 51.1)" fill="none" stroke="#121517" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g></g><g class="spin spin-c"><g class="bob bob-c"><path d="M66 41.1L83.32 51.1L66 61.1L48.68 51.1Z" fill="#FFFFFF"/><path d="M48.68 51.1L66 61.1L66 81.1L48.68 71.1Z" fill="#E3E7EA"/><path d="M66 61.1L83.32 51.1L83.32 71.1L66 81.1Z" fill="#C9D0D5"/><path d="M12.6 6A3 3 0 1 0 10 10.5A3 3 0 1 1 7.4 15" transform="matrix(0.87 0.5 0 1 48.68 51.1)" fill="none" stroke="#121517" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g></g></g></svg>
+        <span class="brand-name">Small Town Systems</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="/websites">Websites</a></li>
+        <li><a href="/systems">Systems</a></li>
+        <li><a href="/contact" class="nav-cta" aria-current="page">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="container page-head">
+      <p class="kicker">Contact</p>
+      <h1>Get in touch.</h1>
+      <p class="lead">Tell us about your business. We'll email you back.</p>
+    </section>
+
+    <section class="section container">
+      <div class="two">
+        <form class="card card-white form" id="contact-form" method="post" action="/api/contact" novalidate>
+          <div class="field">
+            <label for="name">Your name</label>
+            <input id="name" name="name" type="text" autocomplete="name" required maxlength="100">
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required maxlength="200" inputmode="email">
+          </div>
+          <div class="field">
+            <label for="phone">Phone <span class="opt">(optional)</span></label>
+            <input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="40" inputmode="tel">
+          </div>
+          <div class="field">
+            <label for="business">What's your business?</label>
+            <textarea id="business" name="business" rows="4" required maxlength="2000" aria-describedby="business-hint"></textarea>
+            <p class="hint" id="business-hint">The name, what you do, and what you're after.</p>
+          </div>
+          <!-- honeypot: real people never see or fill this -->
+          <div class="hp" aria-hidden="true">
+            <label for="website">Leave this field empty</label>
+            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+          <div id="turnstile" class="turnstile"></div>
+          <div class="actions">
+            <button class="btn btn-primary" type="submit" id="send">Send</button>
+          </div>
+          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+          <p class="notice notice-ok" id="sent">Got it. We'll email you back.</p>
+          <p class="notice notice-bad" id="error">That didn't send. Email <a href="mailto:eli@smalltownsystems.com">eli@smalltownsystems.com</a> instead.</p>
+        </form>
+        <div class="card stack">
+          <p class="eyebrow">Or just email</p>
+          <p class="email-line"><a href="mailto:eli@smalltownsystems.com">eli@smalltownsystems.com</a></p>
+          <p class="muted">Say what your business is and what you're after. A sentence or two is plenty.</p>
+          <p class="muted">Central Kansas. We'll come to you.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <footer class="foot container">
+    <p class="foot-main">Small Town Systems · Central Kansas</p>
+    <p class="foot-small">Built by someone who runs his own businesses on the same tools.</p>
+    <ul class="foot-links">
+      <li><a href="/websites">Websites</a></li>
+      <li><a href="/systems">Systems</a></li>
+      <li><a href="/contact">Contact</a></li>
+      <li><a href="mailto:eli@smalltownsystems.com">eli@smalltownsystems.com</a></li>
+    </ul>
+  </footer>
+  <script src="/js/contact.js" defer></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=stsTurnstileReady" async defer></script>
+</body>
+</html>

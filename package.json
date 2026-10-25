@@ -1,0 +1,11 @@
+{
+  "name": "small-town-systems",
+  "private": true,
+  "description": "smalltownsystems.com: static site in public/, Cloudflare Pages Functions in functions/",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node checks/serve.js",
+    "test": "node checks/run.js"
+  }
+}
