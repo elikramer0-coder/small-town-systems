@@ -15,7 +15,7 @@ public/                 the site, served as-is
   404.html              Not-found page (Cloudflare Pages serves it automatically)
   css/site.css          all styles, including the logo animation
   js/contact.js         contact form: Turnstile, submit, success/failure messages
-  img/                  pictures (see "Placeholders" below)
+  img/                  sts-town.png (hero), keim-shop.jpg (Keim example), sts-logo-blocks.svg (logo source), favicons
   favicon.svg           static version of the logo
 functions/api/
   contact.js            POST /api/contact  (Turnstile + honeypot + Resend)
@@ -45,7 +45,7 @@ To run the contact form locally too, use Cloudflare's own tool: `npx wrangler pa
 2. No broken internal links, images, scripts, stylesheets or in-page anchors.
 3. No phone number anywhere in `public/`, `functions/` or this README.
 4. No emoji, no first-person intro, no customer reviews (the checker looks for the literal phrases), and no roofing-trade words anywhere in `public/` or `functions/`, so the examples read as mixed trades.
-5. Every image has alt text.
+5. Every image has alt text, and the logo on every page and in `favicon.svg` contains the exact polygons and letter paths from `public/img/sts-logo-blocks.svg`.
 6. The contact function rejects missing fields, bad emails and oversized fields; swallows the honeypot without sending; refuses without a Turnstile pass; refuses when env vars are missing; sends one email through Resend when everything is right; and redirects plain (no-JavaScript) form posts to `/contact#sent` or `/contact#error`.
 
 ## Cloudflare Pages setup
@@ -80,15 +80,22 @@ Never put any of these in code. Until `LEAD_FROM`, `RESEND_API_KEY` and `TURNSTI
 
 The owner has not yet approved being shown. The Keim phone on the home page is one block between the comments `KEIM EXAMPLE: START` and `KEIM EXAMPLE: END` in `public/index.html`. Delete that block and `public/img/keim-shop.jpg`; the other two phones re-centre on their own.
 
-## Placeholders waiting on Eli
+## Logo
 
-**The real image files are still not on this branch** (checked 2026-10-26: `public/img/` holds only the generated stand-ins, and no other branch or PR comment has them). Stand-ins sit at the exact filenames, so dropping the real files in needs no HTML change.
+`public/img/sts-logo-blocks.svg` is the source: three isometric cubes in a row (S, T, S). The nav logo and `public/favicon.svg` copy its nine face polygons and three letter paths exactly and only move each cube into a triangle, teal T on top. The S cubes are darker on the left and the T cube darker on the right, as in the source. The cubes sit 146 units apart, more than two cube-heights tip to tip, so they never touch while they dance and rotate. If the source logo changes, the logo check in `npm test` fails until the inline `<svg class="logo-mark">` in each page and `favicon.svg` are rebuilt from it; the animation's `transform-origin` values in `site.css` are the triangle's centroid and each cube's centre.
 
-1. **`public/img/sts-town.png`** is a generated stand-in town. After the real render lands:
-   - set the hero `<img>` `width`/`height` attributes in `index.html` to its real pixel size;
-   - re-tune `--town-overlap` and the three pill positions (`.tag-1`, `.tag-2`, `.tag-3` in `site.css`) at 390, 768 and 1280+ px, so SMALL TOWNS stays partly behind the buildings and no pill covers the water tower. Below 720 px the pills are a plain row under the picture, so only the overlap matters there.
-2. **`public/img/sts-logo-blocks.svg`** is missing, so the cube *geometry* is still drawn from the written description. The *colours* are final: S cubes top `#8A9096`, left `#3A3F44`, right `#5B6268`; T cube top `#2E8A96`, left `#0B5C67`, right `#06363D`; all letters white. When the SVG lands, match the cube shape and letterforms in the inline `<svg class="logo-mark">` in each HTML file and in `public/favicon.svg`, then re-render `public/img/favicon-32.png` and `apple-touch-icon.png`. The triangle layout and the `transform-origin` values in `site.css` assume a cube 34.6 wide by 40 tall on an 88 x 86 canvas.
-3. **`public/img/keim-shop.jpg`** is a drawn stand-in. Replace with the real photo, and get the owner's okay or remove the block as above. The mockup text is final: "Keim Metal Buildings", "Steel buildings in central Kansas", "Get an estimate".
-4. **Turnstile** site key and secret key.
-5. **Resend** API key, domain verification, and the `LEAD_FROM` address.
-6. **Cloudflare Pages** project and the custom domain.
+## Hero tuning
+
+Tuned for the real `sts-town.png` (1800 x 1451) at 390, 720, 768, 1024, 1280, 1440, 1600 and 1920 px wide:
+
+- `--town-overlap` (0.85, desktop) and `--town-overlap-phone` (0.7, under 720 px) in `site.css` set how far the picture climbs over the giant letters. At these values the grain elevator, silos and water tower stand in front of TOWNS (about 12% of its letter pixels hidden on phones, 17 to 19% on wider screens) and SMALL stays fully clear.
+- The three pills (`.tag-1`, `.tag-2`, `.tag-3`) are placed in % of the picture: off the left corner, in the open space right of the church, and on the shadow under the front corner. None of them touches the water tower or the letters at any of those widths. Under 720 px they become a plain row under the picture.
+
+## Still waiting on Eli
+
+1. **Keim's okay** to be shown. Until then, remove the block as described above if the site goes live first.
+2. **Turnstile** site key and secret key, set as Pages environment variables.
+3. **Resend** API key, domain verification, and the `LEAD_FROM` address.
+4. **Custom domain** on the Cloudflare Pages project.
+
+Until 2 and 3 are set for the environment being viewed (Preview or Production), the contact form shows "The form isn't connected yet" and points visitors to the email address.

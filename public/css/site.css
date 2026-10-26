@@ -12,8 +12,10 @@
   --radius: 36px;
   --radius-sm: 20px;
   --hero-size: clamp(64px, 15vw, 232px);
-  /* how far the town picture climbs up over the giant letters */
-  --town-overlap: 0.5;
+  /* how far the town picture climbs up over the giant letters, as a share of the letter size.
+     Tuned for public/img/sts-town.png so the elevator, silos and water tower stand in front of TOWNS. */
+  --town-overlap: 0.85;
+  --town-overlap-phone: 0.7;
   --font-head: "Sora", "Inter", system-ui, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -71,18 +73,19 @@ a:hover { color: var(--ink); }
 }
 
 /* ---------- logo animation (pure SVG + CSS) ---------- */
-.logo-mark { width: 44px; height: 43px; overflow: visible; flex: none; }
+.logo-mark { width: 44px; height: 45px; overflow: visible; flex: none; }
 .logo-mark .orbit, .logo-mark .spin, .logo-mark .bob {
   transform-box: view-box;
   animation-timing-function: cubic-bezier(.65, 0, .3, 1);
   animation-iteration-count: infinite;
   will-change: transform;
 }
-.logo-mark .orbit  { transform-origin: 44px 48.4px; animation-name: logo-orbit; animation-duration: 12s; }
+/* geometry from public/img/sts-logo-blocks.svg: origins are the triangle's centroid and each cube's centre */
+.logo-mark .orbit  { transform-origin: 134px 162.29px; animation-name: logo-orbit; animation-duration: 12s; }
 .logo-mark .spin   { animation-name: logo-counter; animation-duration: 12s; }
-.logo-mark .spin-a { transform-origin: 44px 23px; }
-.logo-mark .spin-b { transform-origin: 22px 61.1px; }
-.logo-mark .spin-c { transform-origin: 66px 61.1px; }
+.logo-mark .spin-a { transform-origin: 134px 78px; }
+.logo-mark .spin-b { transform-origin: 61px 204.44px; }
+.logo-mark .spin-c { transform-origin: 207px 204.44px; }
 .logo-mark .bob    { animation-name: logo-bob; animation-duration: 2.4s; animation-timing-function: ease-in-out; }
 .logo-mark .bob-b  { animation-delay: .5s; }
 .logo-mark .bob-c  { animation-delay: 1s; }
@@ -103,7 +106,7 @@ a:hover { color: var(--ink); }
 }
 @keyframes logo-bob {
   0%, 24%, 100% { transform: translateY(0); }
-  12%           { transform: translateY(-2.2px); }
+  12%           { transform: translateY(-6.5px); }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -149,18 +152,20 @@ a:hover { color: var(--ink); }
   margin-top: calc(var(--hero-size) * -1 * var(--town-overlap));
   width: min(100%, 980px); margin-inline: auto;
 }
-.town img { width: 100%; filter: drop-shadow(0 24px 30px rgba(18, 21, 23, .10)); }
+.town img { width: 100%; }
 .tags { list-style: none; position: absolute; inset: 0; pointer-events: none; }
 .tag {
   position: absolute; background: var(--white); color: var(--ink);
   font: 600 15px/1 var(--font-body); padding: 13px 18px; border-radius: 999px; white-space: nowrap;
   box-shadow: 0 8px 24px rgba(18, 21, 23, .14);
 }
-.tag-1 { left: 2%; top: 42%; }
-.tag-2 { right: 1%; top: 20%; }
+/* pill spots, in % of the town picture: off the left corner, open sky right of the church,
+   the shadow under the front corner. None of them touches the water tower or the letters. */
+.tag-1 { left: 1%; top: 61%; }
+.tag-2 { right: 0; top: 30%; }
 .tag-3 { left: 44%; bottom: 8%; }
 @media (max-width: 719px) {
-  .town { margin-top: calc(var(--hero-size) * -0.3); }
+  .town { margin-top: calc(var(--hero-size) * -1 * var(--town-overlap-phone)); }
   .tags { position: static; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px; pointer-events: auto; }
   .tag { position: static; font-size: 14px; padding: 12px 15px; box-shadow: 0 4px 14px rgba(18, 21, 23, .10); }
 }

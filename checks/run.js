@@ -5,7 +5,8 @@
 //  3. no phone number anywhere in the site, the functions or the README
 //  4. nothing on the "do not" list: emoji, "I'm Eli", a personal-story opener
 //     and no roofing-trade words in the site itself (the examples must read as mixed trades)
-//  5. every <img> has an alt attribute
+//  5. every <img> has an alt attribute, and the logo on every page (and the favicon) is built from
+//     the exact polygons and letter paths in public/img/sts-logo-blocks.svg
 //  6. the contact function rejects missing fields, bad emails and the honeypot,
 //     refuses when Turnstile fails, and sends through Resend when everything is right
 import { promises as fs } from 'node:fs';
@@ -166,6 +167,26 @@ async function checkAltText(pages) {
   check(missing === 0, `${count} <img> tags, all with alt`);
 }
 
+// ---------- 5b. logo geometry ----------
+async function checkLogo(pages) {
+  console.log('\nLogo');
+  const src = await fs.readFile(path.join(PUBLIC, 'img', 'sts-logo-blocks.svg'), 'utf8');
+  const parts = [...src.matchAll(/<(?:polygon|path)\b[^>]*\/>/g)].map((m) => m[0]);
+  check(parts.length === 12, `source logo has 9 faces and 3 letters (found ${parts.length})`);
+  const targets = [
+    ...await Promise.all(pages.map(async (f) => {
+      const html = await fs.readFile(f, 'utf8');
+      const m = html.match(/<svg class="logo-mark"[\s\S]*?<\/svg>/);
+      return { name: path.relative(ROOT, f), svg: m ? m[0] : '' };
+    })),
+    { name: 'public/favicon.svg', svg: await fs.readFile(path.join(PUBLIC, 'favicon.svg'), 'utf8') },
+  ];
+  for (const { name, svg } of targets) {
+    const missingParts = parts.filter((part) => !svg.includes(part));
+    check(svg && missingParts.length === 0, `${name} logo uses the exact source geometry`, missingParts[0]);
+  }
+}
+
 // ---------- 6. contact function ----------
 async function checkContactFunction() {
   console.log('\nContact function');
@@ -289,6 +310,7 @@ try {
   await checkLinks(pages);
   await checkForbiddenContent();
   await checkAltText(pages);
+  await checkLogo(pages);
   await checkContactFunction();
 } finally {
   server.close();
