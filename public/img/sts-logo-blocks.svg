@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 15 394 150" width="788" height="300" role="img" aria-label="STS block logo">
+<title>STS block logo: three isometric cubes reading S, T, S. The T cube is teal.</title>
+<polygon points="70.0,90.0 9.4,55.0 70.0,20.0 130.6,55.0" fill="#8A9096"/>
+<polygon points="70.0,90.0 9.4,55.0 9.4,125.0 70.0,160.0" fill="#3A3F44"/>
+<polygon points="70.0,90.0 130.6,55.0 130.6,125.0 70.0,160.0" fill="#5B6268"/>
+<polygon points="201.2,90.0 140.6,55.0 201.2,20.0 261.9,55.0" fill="#2E8A96"/>
+<polygon points="201.2,90.0 140.6,55.0 140.6,125.0 201.2,160.0" fill="#0B5C67"/>
+<polygon points="201.2,90.0 261.9,55.0 261.9,125.0 201.2,160.0" fill="#06363D"/>
+<polygon points="332.5,90.0 271.9,55.0 332.5,20.0 393.1,55.0" fill="#8A9096"/>
+<polygon points="332.5,90.0 271.9,55.0 271.9,125.0 332.5,160.0" fill="#3A3F44"/>
+<polygon points="332.5,90.0 393.1,55.0 393.1,125.0 332.5,160.0" fill="#5B6268"/>
+<g fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter">
+<path transform="matrix(0.6062,0.3500,0,0.7000,9.4,55.0)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/>
+<path transform="matrix(0.6062,0.3500,0,0.7000,140.6,55.0)" d="M 22,24 H 78 M 50,24 V 80"/>
+<path transform="matrix(0.6062,0.3500,0,0.7000,271.9,55.0)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/>
+</g>
+</svg>
