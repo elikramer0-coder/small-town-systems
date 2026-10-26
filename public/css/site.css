@@ -211,8 +211,7 @@ a:hover { color: var(--ink); }
 .scr-hero { width: 100%; height: 34%; object-fit: cover; }
 .scr-body { padding: 14px 16px; display: grid; gap: 10px; }
 .scr-h { font: 800 20px/1.1 var(--font-head); letter-spacing: -0.02em; }
-.skel { display: block; height: 8px; border-radius: 999px; background: #DDE2E6; }
-.skel.w80 { width: 80%; } .skel.w60 { width: 60%; } .skel.w70 { width: 70%; }
+.scr-sub { color: var(--muted); font-size: 13px; }
 .scr-btn { display: inline-flex; align-items: center; justify-content: center; margin-top: 6px; background: var(--teal); color: #fff; font-weight: 600; font-size: 12px; padding: 10px 14px; border-radius: 999px; width: max-content; }
 /* mini notion board */
 .board { padding: 4px 12px 12px; display: grid; gap: 10px; }

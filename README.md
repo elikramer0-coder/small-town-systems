@@ -44,7 +44,7 @@ To run the contact form locally too, use Cloudflare's own tool: `npx wrangler pa
 1. Every page loads over HTTP with a title, exactly one `<h1>`, a viewport tag and `lang="en"`.
 2. No broken internal links, images, scripts, stylesheets or in-page anchors.
 3. No phone number anywhere in `public/`, `functions/` or this README.
-4. No emoji, no first-person intro, no customer reviews (the checker looks for the literal phrases).
+4. No emoji, no first-person intro, no customer reviews (the checker looks for the literal phrases), and no roofing-trade words anywhere in `public/` or `functions/`, so the examples read as mixed trades.
 5. Every image has alt text.
 6. The contact function rejects missing fields, bad emails and oversized fields; swallows the honeypot without sending; refuses without a Turnstile pass; refuses when env vars are missing; sends one email through Resend when everything is right; and redirects plain (no-JavaScript) form posts to `/contact#sent` or `/contact#error`.
 
@@ -82,12 +82,13 @@ The owner has not yet approved being shown. The Keim phone on the home page is o
 
 ## Placeholders waiting on Eli
 
-The three attached files were not in the session that built this, so stand-ins were generated at the exact filenames. Drop the real files in and nothing else has to change.
+**The real image files are still not on this branch** (checked 2026-10-26: `public/img/` holds only the generated stand-ins, and no other branch or PR comment has them). Stand-ins sit at the exact filenames, so dropping the real files in needs no HTML change.
 
-1. **`public/img/sts-town.png`** is a generated stand-in town. Replace with the real render. Then check two things on the home page: the `width`/`height` attributes on the hero `<img>` in `index.html` (set them to the real pixel size), and the three pill positions (`.tag-1`, `.tag-2`, `.tag-3` in `site.css`) and the overlap amount (`--town-overlap`), so the pills sit over open sky and the letters peek out between buildings.
-2. **The logo cubes** were drawn from the description (three isometric cubes, S T S, the T cube teal) because `sts-logo-blocks.svg` was not available. If the real logo's geometry or colours differ, the cube paths live in the inline `<svg class="logo-mark">` in each HTML file and in `public/favicon.svg`; the triangle layout, animation and `transform-origin` values in `site.css` assume a cube 34.6 wide by 40 tall on a 88 x 86 canvas.
-3. **`public/img/keim-shop.jpg`** is a drawn stand-in. Replace with the real photo (and get the owner's okay, or remove the block as above).
-4. **`public/img/favicon-32.png`** and **`apple-touch-icon.png`** were rendered from the stand-in logo; re-render if the logo changes.
-5. **Turnstile** site key and secret key.
-6. **Resend** API key, domain verification, and the `LEAD_FROM` address.
-7. **Cloudflare Pages** project and the custom domain.
+1. **`public/img/sts-town.png`** is a generated stand-in town. After the real render lands:
+   - set the hero `<img>` `width`/`height` attributes in `index.html` to its real pixel size;
+   - re-tune `--town-overlap` and the three pill positions (`.tag-1`, `.tag-2`, `.tag-3` in `site.css`) at 390, 768 and 1280+ px, so SMALL TOWNS stays partly behind the buildings and no pill covers the water tower. Below 720 px the pills are a plain row under the picture, so only the overlap matters there.
+2. **`public/img/sts-logo-blocks.svg`** is missing, so the cube *geometry* is still drawn from the written description. The *colours* are final: S cubes top `#8A9096`, left `#3A3F44`, right `#5B6268`; T cube top `#2E8A96`, left `#0B5C67`, right `#06363D`; all letters white. When the SVG lands, match the cube shape and letterforms in the inline `<svg class="logo-mark">` in each HTML file and in `public/favicon.svg`, then re-render `public/img/favicon-32.png` and `apple-touch-icon.png`. The triangle layout and the `transform-origin` values in `site.css` assume a cube 34.6 wide by 40 tall on an 88 x 86 canvas.
+3. **`public/img/keim-shop.jpg`** is a drawn stand-in. Replace with the real photo, and get the owner's okay or remove the block as above. The mockup text is final: "Keim Metal Buildings", "Steel buildings in central Kansas", "Get an estimate".
+4. **Turnstile** site key and secret key.
+5. **Resend** API key, domain verification, and the `LEAD_FROM` address.
+6. **Cloudflare Pages** project and the custom domain.

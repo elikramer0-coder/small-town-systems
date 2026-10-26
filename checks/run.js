@@ -4,6 +4,7 @@
 //  2. no broken internal links, images, scripts, stylesheets or in-page anchors
 //  3. no phone number anywhere in the site, the functions or the README
 //  4. nothing on the "do not" list: emoji, "I'm Eli", a personal-story opener
+//     and no roofing-trade words in the site itself (the examples must read as mixed trades)
 //  5. every <img> has an alt attribute
 //  6. the contact function rejects missing fields, bad emails and the honeypot,
 //     refuses when Turnstile fails, and sends through Resend when everything is right
@@ -138,6 +139,16 @@ async function checkForbiddenContent() {
   }
   check(phoneHits === 0, `no phone number in ${files.length} files`);
   check(otherHits === 0, 'no emoji, personal intro or testimonials');
+
+  // The site's examples must read as general small business, never roofing.
+  const ROOFING = /\b(?:re-?roof\w*|roof\w*|gutter\w*|shingle\w*)\b/i;
+  const siteFiles = [...await walk(PUBLIC, textExts), ...await walk(FUNCTIONS, textExts)];
+  let roofHits = 0;
+  for (const file of siteFiles) {
+    const m = (await fs.readFile(file, 'utf8')).match(ROOFING);
+    if (m) { roofHits += 1; fail(`roofing word in ${path.relative(ROOT, file)}`, `matched "${m[0]}"`); }
+  }
+  check(roofHits === 0, `no roofing words in ${siteFiles.length} site files`);
 }
 
 // ---------- 5. alt text ----------
