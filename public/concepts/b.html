@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Small Town Systems: every price, printed</title>
+  <meta name="description" content="Custom websites for small-town businesses in central Kansas, with every price on the page. Plus Notion + Claude office systems.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/img/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/concepts/shared.css">
+  <link rel="stylesheet" href="/concepts/b.css">
+</head>
+<body id="top">
+  <a class="skip" href="#main">Skip to content</a>
+  <aside class="concept-bar" aria-label="About this concept">Concept B of 3. Text with a <span class="draft-sample">dotted underline</span> is a draft price or list, not confirmed yet. <a href="/concepts/">See all three</a></aside>
+  <header class="top">
+    <div class="wrap top-inner">
+      <a class="brand" href="#top"><svg class="logo-cube" viewBox="52 -12 216 248" aria-hidden="true" focusable="false"><polygon points="160,112 56.08,52 160,-8 263.92,52" fill="#0B5C67"/><polygon points="160,112 56.08,52 56.08,172 160,232" fill="#3A3F44"/><polygon points="160,112 263.92,52 263.92,172 160,232" fill="#5B6268"/><g fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter"><path transform="matrix(1.0392,0.6,0,1.2,56.08,52)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/><path transform="matrix(1.0392,-0.6,0,1.2,160,112)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/><path transform="matrix(1.0392,-0.6,1.0392,0.6,56.08,52)" d="M 22,30 H 78 M 50,30 V 80"/></g></svg><span>Small Town Systems</span></a>
+      <nav aria-label="Sections">
+        <ul>
+          <li class="nav-text"><a href="#what">What we do</a></li>
+          <li class="nav-text"><a href="#sizes">Prices</a></li>
+          <li class="nav-text"><a href="#example">Example</a></li>
+          <li><a class="nav-cta" href="#contact">Get a price</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-h">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <h1 id="hero-h">Small Town Systems</h1>
+          <p class="lead">Custom websites for small-town businesses in central Kansas, kept running every month. This is exactly what one costs.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#contact">Get a price</a>
+            <a class="btn btn-quiet" href="#what">What we do</a>
+          </div>
+          <div class="sizes-all" id="sizes">
+            <h2 class="sizes-h">Every size</h2>
+            <table class="size-table">
+              <thead>
+                <tr><th scope="col">Size</th><th scope="col">Pages</th><th scope="col">Build it, once</th><th scope="col">Every month</th></tr>
+              </thead>
+              <tbody>
+            <tr>
+              <th scope="row" data-price="starter.name" data-draft>Starter</th>
+              <td data-price="starter.pages" data-draft>3</td>
+              <td data-price="starter.setup" data-draft>$300</td>
+              <td data-price="starter.monthly" data-draft>$100</td>
+            </tr>
+            <tr>
+              <th scope="row" data-price="standard.name" data-draft>Standard</th>
+              <td data-price="standard.pages" data-draft>5</td>
+              <td data-price="standard.setup" data-draft>$500</td>
+              <td data-price="standard.monthly" data-draft>$200</td>
+            </tr>
+            <tr>
+              <th scope="row" data-price="large.name" data-draft>Large</th>
+              <td data-price="large.pages" data-draft>10</td>
+              <td data-price="large.setup" data-draft>$1,000</td>
+              <td data-price="large.monthly" data-draft>$350</td>
+            </tr>
+                <tr>
+                  <th scope="row" data-price="custom.name" data-draft>Custom</th>
+                  <td>More</td>
+                  <td colspan="2" data-price="custom.price" data-draft>Priced per job</td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="note">Office systems with Notion and Claude: <span data-price="systems.price">Priced per job. Ask.</span></p>
+          </div>
+        </div>
+        <div class="register">
+          <fieldset class="sizes">
+            <legend>Pick a size</legend>
+            <div class="size-row">
+                <label class="size"><input type="radio" name="size" value="starter"><span><span data-price="starter.pages" data-draft>3</span> pages</span></label>
+                <label class="size"><input type="radio" name="size" value="standard" checked><span><span data-price="standard.pages" data-draft>5</span> pages</span></label>
+                <label class="size"><input type="radio" name="size" value="large"><span><span data-price="large.pages" data-draft>10</span> pages</span></label>
+                <label class="size"><input type="radio" name="size" value="custom"><span>More</span></label>
+            </div>
+          </fieldset>
+          <div class="printer" aria-hidden="true"><span></span></div>
+          <div class="receipts">
+            <article class="receipt r-starter" aria-labelledby="rc-starter">
+              <div class="rc-head">
+                <svg class="rc-cube" viewBox="52 -12 216 248" aria-hidden="true" focusable="false"><polygon points="160,112 56.08,52 160,-8 263.92,52" fill="#0B5C67"/><polygon points="160,112 56.08,52 56.08,172 160,232" fill="#3A3F44"/><polygon points="160,112 263.92,52 263.92,172 160,232" fill="#5B6268"/><g fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter"><path transform="matrix(1.0392,0.6,0,1.2,56.08,52)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/><path transform="matrix(1.0392,-0.6,0,1.2,160,112)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/><path transform="matrix(1.0392,-0.6,1.0392,0.6,56.08,52)" d="M 22,30 H 78 M 50,30 V 80"/></g></svg>
+                <p class="rc-name">Small Town Systems</p>
+                <p>Central Kansas</p>
+              </div>
+              <p class="rc-title" id="rc-starter"><span data-price="starter.name" data-draft>Starter</span> website, <span data-price="starter.pages" data-draft>3</span> pages</p>
+              <p class="rc-line"><span>Build it, once</span><span class="rc-dots"></span><span data-price="starter.setup" data-draft>$300</span></p>
+              <ul class="rc-items" data-list="setup" data-draft>
+  <li>Custom design and build, not a template</li>
+  <li>Phone-first, fast and accessible</li>
+  <li>Contact or estimate form</li>
+  <li>Google basics set up</li>
+  <li>Domain set up, or moved from your old provider with old links redirected</li>
+</ul>
+              <p class="rc-line"><span>Every month</span><span class="rc-dots"></span><span data-price="starter.monthly" data-draft>$100</span></p>
+              <ul class="rc-items" data-list="monthly" data-draft>
+  <li>Hosting, security and backups</li>
+  <li>Domain and email records looked after</li>
+  <li>Contact form to your email or printer</li>
+  <li>Changes when you ask: photos, prices, hours</li>
+  <li>Google Business Profile kept current</li>
+</ul>
+              <ul class="rc-terms" data-list="terms" data-draft>
+  <li>No contract. Stop any month.</li>
+  <li>Your domain and your photos stay yours.</li>
+  <li>No promises to be #1 on Google.</li>
+</ul>
+              <p class="rc-foot">Questions? Use the form at the bottom.</p>
+            </article>
+            <article class="receipt r-standard" aria-labelledby="rc-standard">
+              <div class="rc-head">
+                <svg class="rc-cube" viewBox="52 -12 216 248" aria-hidden="true" focusable="false"><polygon points="160,112 56.08,52 160,-8 263.92,52" fill="#0B5C67"/><polygon points="160,112 56.08,52 56.08,172 160,232" fill="#3A3F44"/><polygon points="160,112 263.92,52 263.92,172 160,232" fill="#5B6268"/><g fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter"><path transform="matrix(1.0392,0.6,0,1.2,56.08,52)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/><path transform="matrix(1.0392,-0.6,0,1.2,160,112)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/><path transform="matrix(1.0392,-0.6,1.0392,0.6,56.08,52)" d="M 22,30 H 78 M 50,30 V 80"/></g></svg>
+                <p class="rc-name">Small Town Systems</p>
+                <p>Central Kansas</p>
+              </div>
+              <p class="rc-title" id="rc-standard"><span data-price="standard.name" data-draft>Standard</span> website, <span data-price="standard.pages" data-draft>5</span> pages</p>
+              <p class="rc-line"><span>Build it, once</span><span class="rc-dots"></span><span data-price="standard.setup" data-draft>$500</span></p>
+              <ul class="rc-items" data-list="setup" data-draft>
+  <li>Custom design and build, not a template</li>
+  <li>Phone-first, fast and accessible</li>
+  <li>Contact or estimate form</li>
+  <li>Google basics set up</li>
+  <li>Domain set up, or moved from your old provider with old links redirected</li>
+</ul>
+              <p class="rc-line"><span>Every month</span><span class="rc-dots"></span><span data-price="standard.monthly" data-draft>$200</span></p>
+              <ul class="rc-items" data-list="monthly" data-draft>
+  <li>Hosting, security and backups</li>
+  <li>Domain and email records looked after</li>
+  <li>Contact form to your email or printer</li>
+  <li>Changes when you ask: photos, prices, hours</li>
+  <li>Google Business Profile kept current</li>
+</ul>
+              <ul class="rc-terms" data-list="terms" data-draft>
+  <li>No contract. Stop any month.</li>
+  <li>Your domain and your photos stay yours.</li>
+  <li>No promises to be #1 on Google.</li>
+</ul>
+              <p class="rc-foot">Questions? Use the form at the bottom.</p>
+            </article>
+            <article class="receipt r-large" aria-labelledby="rc-large">
+              <div class="rc-head">
+                <svg class="rc-cube" viewBox="52 -12 216 248" aria-hidden="true" focusable="false"><polygon points="160,112 56.08,52 160,-8 263.92,52" fill="#0B5C67"/><polygon points="160,112 56.08,52 56.08,172 160,232" fill="#3A3F44"/><polygon points="160,112 263.92,52 263.92,172 160,232" fill="#5B6268"/><g fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter"><path transform="matrix(1.0392,0.6,0,1.2,56.08,52)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/><path transform="matrix(1.0392,-0.6,0,1.2,160,112)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/><path transform="matrix(1.0392,-0.6,1.0392,0.6,56.08,52)" d="M 22,30 H 78 M 50,30 V 80"/></g></svg>
+                <p class="rc-name">Small Town Systems</p>
+                <p>Central Kansas</p>
+              </div>
+              <p class="rc-title" id="rc-large"><span data-price="large.name" data-draft>Large</span> website, <span data-price="large.pages" data-draft>10</span> pages</p>
+              <p class="rc-line"><span>Build it, once</span><span class="rc-dots"></span><span data-price="large.setup" data-draft>$1,000</span></p>
+              <ul class="rc-items" data-list="setup" data-draft>
+  <li>Custom design and build, not a template</li>
+  <li>Phone-first, fast and accessible</li>
+  <li>Contact or estimate form</li>
+  <li>Google basics set up</li>
+  <li>Domain set up, or moved from your old provider with old links redirected</li>
+</ul>
+              <p class="rc-line"><span>Every month</span><span class="rc-dots"></span><span data-price="large.monthly" data-draft>$350</span></p>
+              <ul class="rc-items" data-list="monthly" data-draft>
+  <li>Hosting, security and backups</li>
+  <li>Domain and email records looked after</li>
+  <li>Contact form to your email or printer</li>
+  <li>Changes when you ask: photos, prices, hours</li>
+  <li>Google Business Profile kept current</li>
+</ul>
+              <ul class="rc-terms" data-list="terms" data-draft>
+  <li>No contract. Stop any month.</li>
+  <li>Your domain and your photos stay yours.</li>
+  <li>No promises to be #1 on Google.</li>
+</ul>
+              <p class="rc-foot">Questions? Use the form at the bottom.</p>
+            </article>
+            <article class="receipt r-custom" aria-labelledby="rc-custom">
+              <div class="rc-head">
+                <svg class="rc-cube" viewBox="52 -12 216 248" aria-hidden="true" focusable="false"><polygon points="160,112 56.08,52 160,-8 263.92,52" fill="#0B5C67"/><polygon points="160,112 56.08,52 56.08,172 160,232" fill="#3A3F44"/><polygon points="160,112 263.92,52 263.92,172 160,232" fill="#5B6268"/><g fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter"><path transform="matrix(1.0392,0.6,0,1.2,56.08,52)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/><path transform="matrix(1.0392,-0.6,0,1.2,160,112)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/><path transform="matrix(1.0392,-0.6,1.0392,0.6,56.08,52)" d="M 22,30 H 78 M 50,30 V 80"/></g></svg>
+                <p class="rc-name">Small Town Systems</p>
+                <p>Central Kansas</p>
+              </div>
+              <p class="rc-title" id="rc-custom"><span data-price="custom.name" data-draft>Custom</span> website</p>
+              <p class="rc-plain">More than ten pages, or something different.</p>
+              <p class="rc-line"><span>Price</span><span class="rc-dots"></span><span data-price="custom.price" data-draft>Priced per job</span></p>
+              <p class="rc-foot">Tell us what you need in the form at the bottom.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="what" aria-labelledby="what-h">
+      <div class="wrap">
+        <h2 id="what-h" class="band-h">What we do</h2>
+        <div class="specs">
+          <div class="panel">
+            <h3>Websites</h3>
+            <p class="spec-sum">Built for your business, not from a template, and kept running after.</p>
+            <dl class="spec">
+            <div>
+              <dt>Built for you</dt>
+              <dd>Designed and built for your business. Not a template.</dd>
+            </div>
+            <div>
+              <dt>Phones first</dt>
+              <dd>Made for phones first. Fast, and easy for everyone to use.</dd>
+            </div>
+            <div>
+              <dt>A logo</dt>
+              <dd>A logo, if you need one.</dd>
+            </div>
+            <div>
+              <dt>Hosting</dt>
+              <dd>Hosting, security, domain and DNS: we handle them.</dd>
+            </div>
+            <div>
+              <dt>Moving over</dt>
+              <dd>Leaving Hibu or another provider? We move your domain and point your old links to the new pages, so Google keeps finding you.</dd>
+            </div>
+            <div>
+              <dt>Forms</dt>
+              <dd>A contact or estimate form that emails you, or prints at your shop if you don’t use email.</dd>
+            </div>
+            <div>
+              <dt>Google</dt>
+              <dd>The Google basics: page titles and descriptions, the business details Google reads, a sitemap and Search Console. Your Google Business Profile fixed and kept current.</dd>
+            </div>
+            <div>
+              <dt>Reviews</dt>
+              <dd>Printable review cards with a QR code that opens your Google review page.</dd>
+            </div>
+            <div>
+              <dt>No tech needed</dt>
+              <dd>Don’t do tech? You don’t have to. We handle all of it.</dd>
+            </div>
+            </dl>
+          </div>
+          <div class="panel panel-dark" id="systems">
+            <h3>Office systems</h3>
+            <p class="spec-sum">Notion and Claude, set up so your jobs, customers and paperwork live in one place.</p>
+            <dl class="spec">
+            <div>
+              <dt>Notion</dt>
+              <dd>Notion, set up as your business’s home base: jobs, to-dos, customers, how-tos and decisions.</dd>
+            </div>
+            <div>
+              <dt>Claude</dt>
+              <dd>Claude, an AI assistant, connected so it knows your business. It writes drafts, answers questions, does research and helps with paperwork.</dd>
+            </div>
+            <div>
+              <dt>Shown how</dt>
+              <dd>We set it up and show you how to use it. We run our own businesses on this exact setup.</dd>
+            </div>
+            <div>
+              <dt>Price</dt>
+              <dd data-price="systems.price">Priced per job. Ask.</dd>
+            </div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="example" aria-labelledby="example-h">
+      <div class="wrap panel example">
+        <div class="example-text">
+          <h2 id="example-h">Keim Metal Buildings</h2>
+          <p>A client in Haven, Kansas. They build steel buildings.</p>
+          <p class="muted">Their site, on a phone.</p>
+        </div>
+        <div class="example-media">
+          <img class="example-photo" src="/img/keim-shop.jpg" alt="A red steel building with two large white overhead doors and a small covered entry, on a gravel drive under a blue sky." width="900" height="675" loading="lazy">
+          <div class="phone" role="img" aria-label="Keim Metal Buildings website on a phone: their steel building photo, the line Steel buildings in central Kansas, and a Get an estimate button.">
+              <div class="phone-screen">
+                <div class="phone-bar"><span>Keim</span><span class="phone-menu"></span></div>
+                <img src="/img/keim-shop.jpg" alt="" width="900" height="675" loading="lazy">
+                <div class="phone-body">
+                  <p class="phone-h">Keim Metal Buildings</p>
+                  <p class="phone-sub">Steel buildings in central Kansas</p>
+                  <p class="phone-btn">Get an estimate</p>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" aria-labelledby="how-h">
+      <div class="wrap">
+        <h2 id="how-h" class="band-h">How it works</h2>
+        <ol class="steps">
+        <li>
+          <h3>We talk.</h3>
+          <p>Tell us what your business does and what you need. We tell you what it costs.</p>
+        </li>
+        <li>
+          <h3>We build it. You look.</h3>
+          <p>You see it on your own phone and tell us what to change.</p>
+        </li>
+        <li>
+          <h3>It goes live. We keep it running.</h3>
+          <p>Hosting, security and the changes you ask for are handled.</p>
+        </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="band" id="contact" aria-labelledby="contact-h">
+      <div class="wrap panel contact">
+        <div class="contact-text">
+          <h2 id="contact-h">Get a price</h2>
+          <p>Tell us about your business and what you need. We&rsquo;ll get back to you with what we&rsquo;d build and what it costs.</p>
+          <p class="muted">Small Town Systems is in central Kansas. We run our own small businesses on these same tools.</p>
+        </div>
+          <form class="contact-form" data-contact method="post" action="/api/contact" novalidate>
+            <input type="hidden" name="_return" value="/concepts/b">
+            <div class="field">
+              <label for="b-name">Your name</label>
+              <input id="b-name" name="name" type="text" autocomplete="name" required maxlength="100">
+            </div>
+            <div class="field">
+              <label for="b-email">Email</label>
+              <input id="b-email" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="200">
+            </div>
+            <div class="field">
+              <label for="b-phone">Phone <span class="opt">(optional)</span></label>
+              <input id="b-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40">
+            </div>
+            <div class="field">
+              <label for="b-business">Your business and what you need</label>
+              <textarea id="b-business" name="business" rows="5" required maxlength="2000"></textarea>
+            </div>
+            <div class="hp" aria-hidden="true">
+              <label for="b-website">Leave this empty</label>
+              <input id="b-website" name="website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+            <div class="turnstile" data-turnstile></div>
+            <button class="btn btn-primary" type="submit">Send</button>
+            <p class="form-status" data-status role="status" aria-live="polite"></p>
+            <p class="notice notice-ok" id="sent">Sent. We will get back to you.</p>
+            <p class="notice notice-bad" id="not-sent">It did not send. Fill in your name, email and what you need, then send again.</p>
+          </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-inner">
+      <a class="brand" href="#top"><svg class="logo-cube" viewBox="52 -12 216 248" aria-hidden="true" focusable="false"><polygon points="160,112 56.08,52 160,-8 263.92,52" fill="#0B5C67"/><polygon points="160,112 56.08,52 56.08,172 160,232" fill="#3A3F44"/><polygon points="160,112 263.92,52 263.92,172 160,232" fill="#5B6268"/><g fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter"><path transform="matrix(1.0392,0.6,0,1.2,56.08,52)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/><path transform="matrix(1.0392,-0.6,0,1.2,160,112)" d="M 78,24 H 24 V 50 H 76 V 76 H 22"/><path transform="matrix(1.0392,-0.6,1.0392,0.6,56.08,52)" d="M 22,30 H 78 M 50,30 V 80"/></g></svg><span>Small Town Systems</span></a>
+      <p>Websites and office systems for small-town businesses in central Kansas.</p>
+    </div>
+  </footer>
+  <script src="/js/form.js" defer></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=stsTurnstileReady" async defer></script>
+</body>
+</html>

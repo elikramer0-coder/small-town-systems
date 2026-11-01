@@ -16,6 +16,7 @@ const RESEND_URL = 'https://api.resend.com/emails';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
+  let returnTo = '';
   const wantsJson = /application\/json/i.test(request.headers.get('accept') || '');
 
   const reply = (status, body) => {
@@ -25,14 +26,16 @@ export async function onRequestPost(context) {
         headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
       });
     }
-    // Plain HTML form post (no JavaScript): bounce back to the page with a message.
-    const target = new URL(body.ok ? '/contact#sent' : '/contact#error', request.url);
-    return Response.redirect(target.toString(), 303);
+    // Plain HTML form post (no JavaScript): send the visitor back to the page they came from.
+    const page = safeReturnPath(returnTo);
+    const hash = page === '/contact' ? (body.ok ? '#sent' : '#error') : (body.ok ? '#sent' : '#not-sent');
+    return Response.redirect(new URL(page + hash, request.url).toString(), 303);
   };
 
   let fields;
   try {
     fields = await readFields(request);
+    returnTo = fields._return;
   } catch {
     return reply(400, { ok: false, error: 'bad_request' });
   }
@@ -81,10 +84,15 @@ async function readFields(request) {
     for (const [key, value] of form.entries()) raw[key] = value;
   }
   const out = {};
-  for (const key of ['name', 'email', 'phone', 'business', HONEYPOT_FIELD, TURNSTILE_FIELD]) {
+  for (const key of ['name', 'email', 'phone', 'business', '_return', HONEYPOT_FIELD, TURNSTILE_FIELD]) {
     out[key] = typeof raw[key] === 'string' ? raw[key].trim() : '';
   }
   return out;
+}
+
+// Only a plain path on this site, like /concepts/a. Anything else (other sites, //host, odd characters) goes to /contact.
+function safeReturnPath(value) {
+  return typeof value === 'string' && /^\/[a-z0-9/_-]*$/i.test(value) && !value.startsWith('//') ? value : '/contact';
 }
 
 function looksLikeEmail(value) {

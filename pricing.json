@@ -1,0 +1,40 @@
+{
+  "_read_me": "Every price and every 'what's included' line on the site comes from this file. Change a line here, run `npm run prices`, commit. Anything with \"confirmed\": false is a draft: it shows with a dotted amber underline, and `npm run release-check` (the release gate in CI) fails until it is set to true.",
+  "plans": {
+    "starter":  { "name": "Starter",  "pages": 3,  "setup": 300,  "monthly": 100, "confirmed": false },
+    "standard": { "name": "Standard", "pages": 5,  "setup": 500,  "monthly": 200, "confirmed": false },
+    "large":    { "name": "Large",    "pages": 10, "setup": 1000, "monthly": 350, "confirmed": false }
+  },
+  "custom":  { "name": "Custom", "price": "Priced per job", "confirmed": false },
+  "systems": { "price": "Priced per job. Ask.", "confirmed": true },
+  "lists": {
+    "setup": {
+      "confirmed": false,
+      "items": [
+        "Custom design and build, not a template",
+        "Phone-first, fast and accessible",
+        "Contact or estimate form",
+        "Google basics set up",
+        "Domain set up, or moved from your old provider with old links redirected"
+      ]
+    },
+    "monthly": {
+      "confirmed": false,
+      "items": [
+        "Hosting, security and backups",
+        "Domain and email records looked after",
+        "Contact form to your email or printer",
+        "Changes when you ask: photos, prices, hours",
+        "Google Business Profile kept current"
+      ]
+    },
+    "terms": {
+      "confirmed": false,
+      "items": [
+        "No contract. Stop any month.",
+        "Your domain and your photos stay yours.",
+        "No promises to be #1 on Google."
+      ]
+    }
+  }
+}

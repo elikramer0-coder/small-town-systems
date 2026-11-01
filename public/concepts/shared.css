@@ -1,0 +1,58 @@
+/* Shared by the three concept pages. Each concept's own look lives in its own stylesheet. */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; overflow-x: clip; }
+img, svg { display: block; max-width: 100%; }
+img { height: auto; }
+
+/* Draft prices and lists (from pricing.json, "confirmed": false) */
+[data-draft]:not(ul):not(ol),
+ul[data-draft] > li,
+ol[data-draft] > li {
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: #B26A00;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+}
+
+/* Internal bar, concepts only */
+.concept-bar {
+  font: 500 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #FFF6E5; color: #5C3A00; border-bottom: 1px solid #F0D9A8;
+  padding: 8px 16px; text-align: center;
+}
+.concept-bar a { color: inherit; font-weight: 700; }
+.concept-bar .draft-sample { text-decoration: underline dotted #B26A00 2px; text-underline-offset: 0.22em; }
+
+/* The cube logo dances a little now and then. Never spins. */
+.logo-cube { transform-origin: 50% 92%; animation: cube-dance 9s cubic-bezier(.3, 0, .3, 1) 2s infinite; }
+@keyframes cube-dance {
+  0%, 78%, 100% { transform: none; }
+  81%  { transform: translateY(-9%) rotate(-4deg); }
+  84%  { transform: translateY(0) scale(1.05, .94); }
+  87%  { transform: translateY(-6%) rotate(3.5deg); }
+  90%  { transform: translateY(0) scale(1.03, .97); }
+  93%  { transform: translateY(-2%) rotate(0deg); }
+  96%  { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-cube { animation: none; }
+  * { scroll-behavior: auto !important; }
+}
+
+.skip { position: absolute; left: 12px; top: -80px; z-index: 50; padding: 12px 16px; border-radius: 8px; background: #1E2327; color: #fff; font-weight: 600; text-decoration: none; }
+.skip:focus { top: 12px; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Contact form plumbing */
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.turnstile:empty { display: none; }
+.form-status { min-height: 1.5em; margin: 0; font-weight: 600; }
+.form-status.is-error { color: #A12C1F; }
+.form-status.is-ok { color: #0B5C67; }
+.notice { display: none; margin: 0; padding: 14px 16px; border-radius: 10px; font-weight: 600; }
+.notice:target { display: block; }
+.notice-ok { background: #DDEBEC; color: #073F47; }
+.notice-bad { background: #F7E1DD; color: #7A1F17; }

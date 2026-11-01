@@ -5,8 +5,10 @@
 //  3. no phone number anywhere in the site, the functions or the README
 //  4. nothing on the "do not" list: emoji, "I'm Eli", a personal-story opener
 //     and no roofing-trade words in the site itself (the examples must read as mixed trades)
-//  5. every <img> has an alt attribute, and the logo on every page (and the favicon) is built from
-//     the exact polygons and letter paths in public/img/sts-logo-blocks.svg
+//  5. every <img> has an alt attribute, and the cube logo on every new page (and the favicon) is the
+//     exact geometry of public/img/sts-cube.svg
+//  5c. new pages (/concepts/ for now): no email address, no personal name, noindex, and every price
+//     and "what's included" list matches pricing.json
 //  6. the contact function rejects missing fields, bad emails and the honeypot,
 //     refuses when Turnstile fails, and sends through Resend when everything is right
 import { promises as fs } from 'node:fs';
@@ -168,23 +170,53 @@ async function checkAltText(pages) {
 }
 
 // ---------- 5b. logo geometry ----------
+// New pages are the ones under public/concepts/ for now; the old pages are being replaced.
+const isNewPage = (f) => path.relative(PUBLIC, f).replace(/\\/g, '/').startsWith('concepts/');
+
 async function checkLogo(pages) {
   console.log('\nLogo');
-  const src = await fs.readFile(path.join(PUBLIC, 'img', 'sts-logo-blocks.svg'), 'utf8');
+  const src = await fs.readFile(path.join(PUBLIC, 'img', 'sts-cube.svg'), 'utf8');
   const parts = [...src.matchAll(/<(?:polygon|path)\b[^>]*\/>/g)].map((m) => m[0]);
-  check(parts.length === 12, `source logo has 9 faces and 3 letters (found ${parts.length})`);
-  const targets = [
-    ...await Promise.all(pages.map(async (f) => {
-      const html = await fs.readFile(f, 'utf8');
-      const m = html.match(/<svg class="logo-mark"[\s\S]*?<\/svg>/);
-      return { name: path.relative(ROOT, f), svg: m ? m[0] : '' };
-    })),
-    { name: 'public/favicon.svg', svg: await fs.readFile(path.join(PUBLIC, 'favicon.svg'), 'utf8') },
-  ];
-  for (const { name, svg } of targets) {
-    const missingParts = parts.filter((part) => !svg.includes(part));
-    check(svg && missingParts.length === 0, `${name} logo uses the exact source geometry`, missingParts[0]);
+  check(parts.length === 6, `source cube has 3 faces and 3 letters (found ${parts.length})`);
+  const targets = [{ name: 'public/favicon.svg', svgs: [await fs.readFile(path.join(PUBLIC, 'favicon.svg'), 'utf8')] }];
+  for (const f of pages.filter(isNewPage)) {
+    const html = await fs.readFile(f, 'utf8');
+    targets.push({ name: path.relative(ROOT, f), svgs: [...html.matchAll(/<svg class="[^"]*"\s+viewBox="52 -12 216 248"[\s\S]*?<\/svg>/g)].map((m) => m[0]) });
   }
+  for (const { name, svgs } of targets) {
+    const bad = svgs.filter((svg) => parts.some((part) => !svg.includes(part)));
+    check(svgs.length > 0 && bad.length === 0, `${name}: ${svgs.length} cube logo(s), all exact source geometry`, svgs.length ? 'a cube differs from public/img/sts-cube.svg' : 'no cube logo found');
+  }
+}
+
+// ---------- 5c. new-page rules and prices ----------
+async function checkNewPages(pages) {
+  console.log('\nNew pages and prices');
+  const { loadPricing, stamp } = await import(path.join(ROOT, 'scripts', 'prices.js'));
+  const pricing = await loadPricing();
+  const EMAIL = /[A-Z0-9._%+-]+@[A-Z0-9-]+(?:\.[A-Z0-9-]+)*\.[A-Z]{2,}/i;
+  const NAME = /\bEli\b|\bKramer\b/;
+  const shared = [path.join(PUBLIC, 'js', 'form.js')];
+  for (const f of [...pages.filter(isNewPage), ...shared]) {
+    const text = await fs.readFile(f, 'utf8');
+    const rel = path.relative(ROOT, f);
+    const email = text.match(EMAIL);
+    check(!email, `${rel}: no email address shown`, email && `found "${email[0]}"`);
+    const name = text.match(NAME);
+    check(!name, `${rel}: no personal name`, name && `found "${name[0]}"`);
+    if (!f.endsWith('.html')) continue;
+    check(/<meta name="robots" content="noindex/.test(text), `${rel}: marked noindex`);
+  }
+  let drift = 0;
+  let stamped = 0;
+  for (const f of pages) {
+    const html = await fs.readFile(f, 'utf8');
+    stamped += (html.match(/\bdata-(?:price|list)="/g) || []).length;
+    let next;
+    try { next = stamp(html, pricing); } catch (e) { drift += 1; fail(`${path.relative(ROOT, f)}: price placeholder`, e.message); continue; }
+    if (next !== html) { drift += 1; fail(`${path.relative(ROOT, f)} does not match pricing.json`, 'run `npm run prices` and commit'); }
+  }
+  check(drift === 0, `${stamped} price and list spots match pricing.json`);
 }
 
 // ---------- 6. contact function ----------
@@ -291,6 +323,15 @@ async function checkContactFunction() {
     r = await post({ ...GOOD, name: '' }, { json: false });
     check(r.res.status === 303 && r.res.headers.get('location') === 'https://smalltownsystems.com/contact#error', 'plain form post with error -> redirect to /contact#error');
 
+    r = await post({ ...GOOD, _return: '/concepts/a' }, { json: false });
+    check(r.res.status === 303 && r.res.headers.get('location') === 'https://smalltownsystems.com/concepts/a#sent', 'plain post with _return -> back to that page #sent');
+    r = await post({ ...GOOD, name: '', _return: '/concepts/a' }, { json: false });
+    check(r.res.headers.get('location') === 'https://smalltownsystems.com/concepts/a#not-sent', 'plain post with _return and an error -> back to that page #not-sent');
+    for (const evil of ['//evil.example/x', 'https://evil.example/', '/a b', 'javascript:alert(1)']) {
+      r = await post({ ...GOOD, _return: evil }, { json: false });
+      check(r.res.headers.get('location') === 'https://smalltownsystems.com/contact#sent', `_return "${evil}" ignored, falls back to /contact`);
+    }
+
     const cfg = await onRequestGet({ env: { TURNSTILE_SITE_KEY: 'site_123' } }).json();
     check(cfg.turnstileSiteKey === 'site_123', '/api/config serves the Turnstile site key');
     const cfgEmpty = await onRequestGet({ env: {} }).json();
@@ -311,6 +352,7 @@ try {
   await checkForbiddenContent();
   await checkAltText(pages);
   await checkLogo(pages);
+  await checkNewPages(pages);
   await checkContactFunction();
 } finally {
   server.close();
