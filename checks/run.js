@@ -5,12 +5,12 @@
 //  3. no phone number anywhere in the site, the functions or the README
 //  4. nothing on the "do not" list: emoji, "I'm Eli", a personal-story opener
 //     and no roofing-trade words in the site itself (the examples must read as mixed trades)
-//  5. every <img> has an alt attribute, and the cube logo on every new page (and the favicon) is the
-//     exact geometry of public/img/sts-cube.svg
-//  5c. new pages (/concepts/ for now): no email address, no personal name, noindex, and every price
-//     and "what's included" list matches pricing.json
-//  6. the contact function rejects missing fields, bad emails and the honeypot,
-//     refuses when Turnstile fails, and sends through Resend when everything is right
+//  5. every <img> has alt text; the cube logo on every page and in favicon.svg is the exact geometry
+//     of public/img/sts-cube.svg
+//  5c. every page: no email address, no personal name, canonical link (404 excepted), noindex only on
+//     the 404, listed in sitemap.xml, the same header and footer, and prices that match pricing.json;
+//     every "Get a price" form offers exactly the four approved choices
+//  6. the contact function: needs, name, email or phone, honeypot, Turnstile, Resend, return paths
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,6 +35,11 @@ async function walk(dir, exts) {
   }
   return out;
 }
+
+const urlFor = (file) => {
+  const rel = path.relative(PUBLIC, file).replace(/\\/g, '/');
+  return rel === 'index.html' ? '/' : '/' + rel.replace(/\.html$/, '');
+};
 
 // ---------- 1. pages load ----------
 async function checkPagesLoad(base, pages) {
@@ -170,8 +175,7 @@ async function checkAltText(pages) {
 }
 
 // ---------- 5b. logo geometry ----------
-// New pages are the ones under public/concepts/ for now; the old pages are being replaced.
-const isNewPage = (f) => path.relative(PUBLIC, f).replace(/\\/g, '/').startsWith('concepts/');
+const isNewPage = () => true; // every page follows the new rules now
 
 async function checkLogo(pages) {
   console.log('\nLogo');
@@ -205,8 +209,44 @@ async function checkNewPages(pages) {
     const name = text.match(NAME);
     check(!name, `${rel}: no personal name`, name && `found "${name[0]}"`);
     if (!f.endsWith('.html')) continue;
-    check(/<meta name="robots" content="noindex/.test(text), `${rel}: marked noindex`);
+    const is404 = path.basename(f) === '404.html';
+    const noindex = /<meta name="robots" content="noindex/.test(text);
+    check(is404 ? noindex : !noindex, is404 ? `${rel}: noindex (not-found page)` : `${rel}: indexable`);
+    if (!is404) {
+      const want = 'https://smalltownsystems.com' + urlFor(f);
+      const canon = (text.match(/<link rel="canonical" href="([^"]+)"/) || [])[1];
+      check(canon === want, `${rel}: canonical ${want}`, `found ${canon}`);
+    }
   }
+
+  // sitemap lists every indexable page, and nothing else
+  const sitemap = await fs.readFile(path.join(PUBLIC, 'sitemap.xml'), 'utf8');
+  const listed = [...sitemap.matchAll(/<loc>https:\/\/smalltownsystems\.com([^<]*)<\/loc>/g)].map((m) => m[1]).sort();
+  const expected = pages.filter((f) => path.basename(f) !== '404.html').map(urlFor).sort();
+  check(JSON.stringify(listed) === JSON.stringify(expected), `sitemap.xml lists exactly the ${expected.length} pages`, `sitemap: ${listed.join(' ')} / pages: ${expected.join(' ')}`);
+
+  // one header and one footer, the same everywhere (only the current-page marker differs)
+  const part = (html, tag) => ((html.match(new RegExp(`<${tag} class="(?:top|foot)[\\s\\S]*?</${tag}>`)) || [''])[0]).replace(/ aria-current="page"/g, '');
+  const firstHtml = await fs.readFile(pages[0], 'utf8');
+  for (const tag of ['header', 'footer']) {
+    const ref = part(firstHtml, tag);
+    let same = ref.length > 0;
+    for (const f of pages) if (part(await fs.readFile(f, 'utf8'), tag) !== ref) { same = false; fail(`${path.relative(ROOT, f)}: ${tag} differs from ${path.relative(ROOT, pages[0])}`); }
+    check(same, `same ${tag} on all ${pages.length} pages`);
+  }
+
+  // the "Get a price" form offers exactly the four approved choices, in order
+  const NEEDS = ['New website', 'Fix or replace my website', 'Google listing &amp; reviews', 'Notion + AI'];
+  let forms = 0;
+  for (const f of pages) {
+    const html = await fs.readFile(f, 'utf8');
+    for (const m of html.matchAll(/<form class="get-price"[\s\S]*?<\/form>/g)) {
+      forms += 1;
+      const values = [...m[0].matchAll(/name="needs" value="([^"]+)"/g)].map((x) => x[1]);
+      check(JSON.stringify(values) === JSON.stringify(NEEDS), `${path.relative(ROOT, f)}: form choices are the approved four`, `found ${values.join(' | ')}`);
+    }
+  }
+  check(forms >= 2, `"Get a price" form on the home and contact pages (${forms} found)`);
   let drift = 0;
   let stamped = 0;
   for (const f of pages) {
@@ -230,7 +270,7 @@ async function checkContactFunction() {
     LEAD_FROM: 'Small Town Systems <leads@example.com>',
     TURNSTILE_SECRET_KEY: 'ts_test',
   };
-  const GOOD = { name: 'Pat', email: 'pat@example.com', phone: '', business: 'Hardware store on Main.', 'cf-turnstile-response': 'token' };
+  const GOOD = { needs: ['New website', 'Google listing & reviews'], name: 'Pat', business: 'Main Street Hardware', email: 'pat@example.com', phone: '', message: 'Our old site is slow.', 'cf-turnstile-response': 'token' };
 
   const calls = [];
   let turnstileSays = true;
@@ -251,7 +291,8 @@ async function checkContactFunction() {
 
   async function post(fields, { env = ENV, json = true } = {}) {
     calls.length = 0;
-    const body = new URLSearchParams(fields);
+    const body = new URLSearchParams();
+    for (const [key, value] of Object.entries(fields)) for (const v of [].concat(value)) body.append(key, v);
     const request = new Request('https://smalltownsystems.com/api/contact', {
       method: 'POST',
       headers: {
@@ -271,20 +312,27 @@ async function checkContactFunction() {
     check(r.res.status === 400 && r.data?.error === 'missing' && r.data.fields?.includes('name'), 'missing name -> 400 missing');
     check(r.resendCalls.length === 0, 'missing name -> nothing sent');
 
-    r = await post({ ...GOOD, email: '' });
-    check(r.res.status === 400 && r.data?.error === 'missing', 'missing email -> 400 missing');
+    r = await post({ ...GOOD, email: '', phone: '' });
+    check(r.res.status === 400 && r.data?.error === 'missing' && r.data.fields?.includes('email_or_phone'), 'no email and no phone -> 400 missing');
 
-    r = await post({ ...GOOD, business: '   ' });
-    check(r.res.status === 400 && r.data?.error === 'missing', 'blank business -> 400 missing');
+    r = await post({ ...GOOD, email: '', phone: '555 0100' });
+    check(r.res.status === 200 && r.data?.ok === true, 'phone only, no email -> accepted');
+    check(r.resendCalls.length === 1 && !('reply_to' in r.resendCalls[0].body), 'phone only -> sent, with no reply-to');
 
     r = await post({ ...GOOD, email: 'not-an-email' });
     check(r.res.status === 400 && r.data?.error === 'email', 'bad email -> 400 email');
+
+    r = await post({ ...GOOD, needs: [] , message: '' });
+    check(r.res.status === 200, 'nothing ticked and no message -> still accepted (name + email is enough)');
+
+    r = await post({ ...GOOD, needs: ['New website', 'Free iPhone', 'Notion + AI'] });
+    check(/What they need: New website, Notion \+ AI\n/.test(r.resendCalls[0]?.body?.text || ''), 'unknown choices are dropped; known ones are listed in the email');
 
     r = await post({ ...GOOD, website: 'http://spam.example' });
     check(r.res.status === 200 && r.data?.ok === true, 'honeypot filled -> fake 200 so the bot moves on');
     check(r.resendCalls.length === 0 && r.turnstileCalls.length === 0, 'honeypot filled -> nothing sent, nothing verified');
 
-    r = await post({ ...GOOD, business: 'x'.repeat(2001) });
+    r = await post({ ...GOOD, message: 'x'.repeat(2001) });
     check(r.res.status === 400 && r.data?.error === 'too_long', 'oversized field -> 400 too_long');
 
     r = await post(GOOD, { env: {} });
@@ -307,7 +355,8 @@ async function checkContactFunction() {
     check(sent?.to?.[0] === 'eli@smalltownsystems.com', 'LEAD_TO unset -> defaults to eli@smalltownsystems.com');
     check(sent?.reply_to === GOOD.email, 'reply-to is the visitor');
     check(sent?.from === ENV.LEAD_FROM, 'from is LEAD_FROM');
-    check(typeof sent?.text === 'string' && sent.text.includes(GOOD.business) && sent.text.includes(GOOD.name), 'email body carries the lead');
+    check(typeof sent?.text === 'string' && [GOOD.name, GOOD.business, GOOD.email, GOOD.message, 'New website, Google listing & reviews'].every((t) => sent.text.includes(t)), 'email body carries name, business, email, needs and message');
+    check(sent?.subject === 'New lead: Pat, Main Street Hardware', 'subject names the person and the business');
     check(r.resendCalls[0].headers.authorization === 'Bearer re_test', 'Resend key sent as bearer token');
 
     r = await post(GOOD, { env: { ...ENV, LEAD_TO: 'other@example.com' } });

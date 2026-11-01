@@ -1,5 +1,6 @@
 // Cloudflare Pages Function: POST /api/contact
-// Takes the contact form, checks Cloudflare Turnstile and a honeypot field, then emails the lead with Resend.
+// Takes the "Get a price" form, checks Cloudflare Turnstile and a honeypot field, then emails the lead with Resend.
+// Fields: needs (any of NEEDS), name, business (optional), email and/or phone (at least one), message (optional).
 //
 // Environment variables (set in the Cloudflare Pages project, never in code):
 //   LEAD_TO              where leads go. Defaults to eli@smalltownsystems.com
@@ -10,7 +11,9 @@
 const DEFAULT_TO = 'eli@smalltownsystems.com';
 const HONEYPOT_FIELD = 'website';
 const TURNSTILE_FIELD = 'cf-turnstile-response';
-const LIMITS = { name: 100, email: 200, phone: 40, business: 2000 };
+const LIMITS = { name: 100, email: 200, phone: 40, business: 200, message: 2000 };
+// The four choices in step 1 of the form. Anything else is ignored.
+const NEEDS = ['New website', 'Fix or replace my website', 'Google listing & reviews', 'Notion + AI'];
 const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const RESEND_URL = 'https://api.resend.com/emails';
 
@@ -45,11 +48,14 @@ export async function onRequestPost(context) {
     return reply(200, { ok: true });
   }
 
-  const missing = ['name', 'email', 'business'].filter((key) => !fields[key]);
+  // A name, and a way to answer: an email or a phone (owners who don't use email can leave a phone).
+  const missing = [];
+  if (!fields.name) missing.push('name');
+  if (!fields.email && !fields.phone) missing.push('email_or_phone');
   if (missing.length) {
     return reply(400, { ok: false, error: 'missing', fields: missing });
   }
-  if (!looksLikeEmail(fields.email)) {
+  if (fields.email && !looksLikeEmail(fields.email)) {
     return reply(400, { ok: false, error: 'email' });
   }
   const tooLong = Object.keys(LIMITS).filter((key) => (fields[key] || '').length > LIMITS[key]);
@@ -77,16 +83,20 @@ export async function onRequestPost(context) {
 async function readFields(request) {
   const type = (request.headers.get('content-type') || '').toLowerCase();
   let raw = {};
+  let needs = [];
   if (type.includes('application/json')) {
     raw = await request.json();
+    needs = Array.isArray(raw.needs) ? raw.needs : raw.needs ? [raw.needs] : [];
   } else {
     const form = await request.formData();
-    for (const [key, value] of form.entries()) raw[key] = value;
+    for (const [key, value] of form.entries()) if (key !== 'needs') raw[key] = value;
+    needs = form.getAll('needs');
   }
   const out = {};
-  for (const key of ['name', 'email', 'phone', 'business', '_return', HONEYPOT_FIELD, TURNSTILE_FIELD]) {
+  for (const key of ['name', 'email', 'phone', 'business', 'message', '_return', HONEYPOT_FIELD, TURNSTILE_FIELD]) {
     out[key] = typeof raw[key] === 'string' ? raw[key].trim() : '';
   }
+  out.needs = NEEDS.filter((n) => needs.includes(n));
   return out;
 }
 
@@ -117,14 +127,25 @@ async function sendLead(fields, env) {
   const to = env.LEAD_TO || DEFAULT_TO;
   const text = [
     `Name: ${fields.name}`,
-    `Email: ${fields.email}`,
+    `Business: ${fields.business || '(not given)'}`,
+    `Email: ${fields.email || '(not given)'}`,
     `Phone: ${fields.phone || '(not given)'}`,
     '',
-    'Business:',
-    fields.business,
+    `What they need: ${fields.needs.length ? fields.needs.join(', ') : '(nothing ticked)'}`,
     '',
-    `Sent from the smalltownsystems.com contact form on ${new Date().toISOString()}`,
+    'Anything else:',
+    fields.message || '(nothing)',
+    '',
+    `Sent from the smalltownsystems.com "Get a price" form on ${new Date().toISOString()}`,
   ].join('\n');
+  const subject = `New lead: ${fields.name}${fields.business ? `, ${fields.business}` : ''}`;
+  const message = {
+    from: env.LEAD_FROM,
+    to: [to],
+    subject,
+    text,
+  };
+  if (fields.email) message.reply_to = fields.email;
 
   try {
     const res = await fetch(RESEND_URL, {
@@ -133,13 +154,7 @@ async function sendLead(fields, env) {
         authorization: `Bearer ${env.RESEND_API_KEY}`,
         'content-type': 'application/json',
       },
-      body: JSON.stringify({
-        from: env.LEAD_FROM,
-        to: [to],
-        reply_to: fields.email,
-        subject: `New lead: ${fields.name}`,
-        text,
-      }),
+      body: JSON.stringify(message),
     });
     return res.ok;
   } catch {

@@ -7,7 +7,7 @@
 //   <span data-price="standard.setup"></span>    -> $500
 //   <span data-price="standard.monthly"></span>  -> $200
 //   <span data-price="standard.pages"></span>    -> 5
-//   <span data-price="standard.name"></span>     -> Standard
+//   <span data-price="standard.name"></span>     -> the name from the name set in use
 //   <span data-price="custom.price"></span>      -> Priced per job
 //   <ul data-list="monthly"></ul>                -> one <li> per item
 // Drafts get a data-draft attribute, which the CSS marks with a dotted amber underline.
@@ -27,6 +27,12 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 
 export function lookup(pricing, key) {
   const [group, field] = key.split('.');
+  if (field === 'name') {
+    const names = pricing.names;
+    const set = names.sets[names.use];
+    if (!set || !(group in set)) throw new Error(`pricing.json: no name for "${group}" in name set "${names.use}"`);
+    return { value: set[group], confirmed: names.confirmed === true };
+  }
   if (pricing.plans[group]) {
     const plan = pricing.plans[group];
     if (!(field in plan)) throw new Error(`pricing.json: plan "${group}" has no "${field}"`);
@@ -72,7 +78,8 @@ export async function htmlFiles(dir = PUBLIC) {
 
 export function drafts(pricing) {
   const list = [];
-  for (const [id, plan] of Object.entries(pricing.plans)) if (plan.confirmed !== true) list.push(`plan "${id}" (${plan.name})`);
+  for (const [id, plan] of Object.entries(pricing.plans)) if (plan.confirmed !== true) list.push(`plan "${id}" prices`);
+  if (pricing.names.confirmed !== true) list.push(`plan names (set "${pricing.names.use}")`);
   for (const id of ['custom', 'systems']) if (pricing[id] && pricing[id].confirmed !== true) list.push(`"${id}" price`);
   for (const [id, l] of Object.entries(pricing.lists)) if (l.confirmed !== true) list.push(`list "${id}"`);
   return list;
