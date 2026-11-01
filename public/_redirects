@@ -1,0 +1,4 @@
+# Old addresses from earlier versions of the site.
+/systems      /office-systems  301
+/concepts     /                301
+/concepts/*   /                301
