@@ -28,7 +28,7 @@ The cube's faces are always `#0B5C67`, `#3A3F44` and `#5B6268`, and its letters 
 
 ## Typography
 
-One family: **Sora**, self-hosted as one variable file (`public/fonts/sora-latin-v17.woff2`, weights 300 to 700, SIL Open Font License in `public/fonts/OFL.txt`).
+One family: **Sora**, self-hosted as one variable file (`public/fonts/sora-latin-v17.woff2`, weights 300 to 700, SIL Open Font License in `public/fonts/OFL.txt`). It is preloaded and set to `font-display: optional`, with fallback faces sized to Sora's width and line metrics (Arial or Liberation Sans, and Roboto on Android). Sora shows whenever it arrives in time for the first paint, and the font can never cause a layout shift.
 
 | Use | Size | Weight | Line height | Tracking |
 | --- | --- | --- | --- | --- |
