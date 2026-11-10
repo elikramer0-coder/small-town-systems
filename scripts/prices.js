@@ -10,6 +10,7 @@
 //   <span data-price="standard.name"></span>     -> the name from the name set in use
 //   <span data-price="custom.price"></span>      -> Priced per job
 //   <ul data-list="monthly"></ul>                -> one <li> per item
+//   <input data-price-value="standard.name">     -> value="Premium" (form choices that send a plan name)
 // Drafts get a data-draft attribute, which the CSS marks with a dotted amber underline.
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
@@ -54,6 +55,11 @@ export function stamp(html, pricing) {
   let out = html.replace(/<(\w+)(\s[^>]*?\bdata-price="([^"]+)"[^>]*)>([\s\S]*?)<\/\1>/g, (_m, tag, attrs, key) => {
     const { value, confirmed } = lookup(pricing, key);
     return `<${tag}${setDraft(attrs, !confirmed)}>${esc(value)}</${tag}>`;
+  });
+  out = out.replace(/<input(\s[^>]*?\bdata-price-value="([^"]+)"[^>]*?)(\s*\/?)>/g, (_m, attrs, key, close) => {
+    const { value } = lookup(pricing, key);
+    const clean = attrs.replace(/\svalue="[^"]*"/g, '');
+    return `<input${clean} value="${esc(value).replace(/"/g, '&quot;')}"${close}>`;
   });
   out = out.replace(/<(ul|ol)(\s[^>]*?\bdata-list="([^"]+)"[^>]*)>([\s\S]*?)<\/\1>/g, (_m, tag, attrs, key, inner) => {
     const list = pricing.lists[key];

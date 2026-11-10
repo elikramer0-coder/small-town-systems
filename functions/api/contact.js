@@ -1,19 +1,23 @@
 // Cloudflare Pages Function: POST /api/contact
 // Takes the "Get a price" form, checks Cloudflare Turnstile and a honeypot field, then emails the lead with Resend.
-// Fields: needs (any of NEEDS), name, business (optional), email and/or phone (at least one), message (optional).
+//
+// Fields (step 1): needs (any of NEEDS), needs_other (write-in for "Something else"),
+//   business (business name and town, required), current_site (optional), plan (optional).
+// Fields (step 2): name (required), contact (phone or email, required), reach_by (Call / Text / Email, optional),
+//   message (optional).
 //
 // Environment variables (set in the Cloudflare Pages project, never in code):
-//   LEAD_TO              where leads go. Defaults to eli@smalltownsystems.com
+//   LEAD_TO              where leads go. Defaults to the address in DEFAULT_TO
 //   LEAD_FROM            the sender, on a domain verified in Resend, e.g. "Small Town Systems <leads@smalltownsystems.com>"
 //   RESEND_API_KEY       Resend API key
 //   TURNSTILE_SECRET_KEY Turnstile secret key (the site key is served by /api/config)
 
 const DEFAULT_TO = 'eli@smalltownsystems.com';
-const HONEYPOT_FIELD = 'website';
+const HONEYPOT_FIELD = 'hp_extra';
 const TURNSTILE_FIELD = 'cf-turnstile-response';
-const LIMITS = { name: 100, email: 200, phone: 40, business: 200, message: 2000 };
-// The four choices in step 1 of the form. Anything else is ignored.
-const NEEDS = ['New website', 'Fix or replace my website', 'Google listing & reviews', 'Notion + AI'];
+const NEEDS = ['New website', 'Fix or replace my website', 'Google listing & reviews', 'Notion + AI setup', 'Something else'];
+const REACH = ['Call', 'Text', 'Email'];
+const LIMITS = { business: 200, current_site: 300, needs_other: 200, plan: 40, name: 100, contact: 200, message: 2000 };
 const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const RESEND_URL = 'https://api.resend.com/emails';
 
@@ -31,7 +35,7 @@ export async function onRequestPost(context) {
     }
     // Plain HTML form post (no JavaScript): send the visitor back to the page they came from.
     const page = safeReturnPath(returnTo);
-    const hash = page === '/contact' ? (body.ok ? '#sent' : '#error') : (body.ok ? '#sent' : '#not-sent');
+    const hash = page === '/contact' ? (body.ok ? '#sent' : '#not-sent') : (body.ok ? '#sent' : '#not-sent');
     return Response.redirect(new URL(page + hash, request.url).toString(), 303);
   };
 
@@ -48,15 +52,12 @@ export async function onRequestPost(context) {
     return reply(200, { ok: true });
   }
 
-  // A name, and a way to answer: an email or a phone (owners who don't use email can leave a phone).
-  const missing = [];
-  if (!fields.name) missing.push('name');
-  if (!fields.email && !fields.phone) missing.push('email_or_phone');
+  const missing = ['business', 'name', 'contact'].filter((key) => !fields[key]);
   if (missing.length) {
     return reply(400, { ok: false, error: 'missing', fields: missing });
   }
-  if (fields.email && !looksLikeEmail(fields.email)) {
-    return reply(400, { ok: false, error: 'email' });
+  if (!looksLikeContact(fields.contact)) {
+    return reply(400, { ok: false, error: 'contact' });
   }
   const tooLong = Object.keys(LIMITS).filter((key) => (fields[key] || '').length > LIMITS[key]);
   if (tooLong.length) {
@@ -93,20 +94,25 @@ async function readFields(request) {
     needs = form.getAll('needs');
   }
   const out = {};
-  for (const key of ['name', 'email', 'phone', 'business', 'message', '_return', HONEYPOT_FIELD, TURNSTILE_FIELD]) {
+  for (const key of ['business', 'current_site', 'needs_other', 'plan', 'name', 'contact', 'reach_by', 'message', '_return', HONEYPOT_FIELD, TURNSTILE_FIELD]) {
     out[key] = typeof raw[key] === 'string' ? raw[key].trim() : '';
   }
   out.needs = NEEDS.filter((n) => needs.includes(n));
+  out.reach_by = REACH.includes(out.reach_by) ? out.reach_by : '';
   return out;
 }
 
-// Only a plain path on this site, like /concepts/a. Anything else (other sites, //host, odd characters) goes to /contact.
-function safeReturnPath(value) {
-  return typeof value === 'string' && /^\/[a-z0-9/_-]*$/i.test(value) && !value.startsWith('//') ? value : '/contact';
+// A phone (at least 7 digits) or an email (something@domain.tld).
+function looksLikeContact(value) {
+  if (value.includes('@')) return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  return (value.match(/\d/g) || []).length >= 7;
 }
 
-function looksLikeEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+const isEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+// Only a plain path on this site, like /prices. Anything else (other sites, //host, odd characters) goes to /contact.
+function safeReturnPath(value) {
+  return typeof value === 'string' && /^\/[a-z0-9/_-]*$/i.test(value) && !value.startsWith('//') ? value : '/contact';
 }
 
 async function verifyTurnstile(token, secret, ip) {
@@ -123,30 +129,36 @@ async function verifyTurnstile(token, secret, ip) {
   }
 }
 
-async function sendLead(fields, env) {
-  const to = env.LEAD_TO || DEFAULT_TO;
-  const text = [
-    `Name: ${fields.name}`,
-    `Business: ${fields.business || '(not given)'}`,
-    `Email: ${fields.email || '(not given)'}`,
-    `Phone: ${fields.phone || '(not given)'}`,
+// Every answer from the form, in the order the visitor gave them.
+function leadText(f) {
+  const needs = f.needs.length ? f.needs.join(', ') : '(nothing ticked)';
+  return [
+    'STEP 1',
+    `What they need: ${needs}`,
+    `Something else: ${f.needs_other || '(not given)'}`,
+    `Business and town: ${f.business}`,
+    `Website now: ${f.current_site || '(not given)'}`,
+    `Plan that looks right: ${f.plan || '(not picked)'}`,
     '',
-    `What they need: ${fields.needs.length ? fields.needs.join(', ') : '(nothing ticked)'}`,
-    '',
+    'STEP 2',
+    `Name: ${f.name}`,
+    `Phone or email: ${f.contact}`,
+    `Best way to reach them: ${f.reach_by || '(not picked)'}`,
     'Anything else:',
-    fields.message || '(nothing)',
+    f.message || '(nothing)',
     '',
     `Sent from the smalltownsystems.com "Get a price" form on ${new Date().toISOString()}`,
   ].join('\n');
-  const subject = `New lead: ${fields.name}${fields.business ? `, ${fields.business}` : ''}`;
+}
+
+async function sendLead(fields, env) {
   const message = {
     from: env.LEAD_FROM,
-    to: [to],
-    subject,
-    text,
+    to: [env.LEAD_TO || DEFAULT_TO],
+    subject: `New lead: ${fields.name}, ${fields.business}`,
+    text: leadText(fields),
   };
-  if (fields.email) message.reply_to = fields.email;
-
+  if (isEmail(fields.contact)) message.reply_to = fields.contact;
   try {
     const res = await fetch(RESEND_URL, {
       method: 'POST',

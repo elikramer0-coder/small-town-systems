@@ -1,4 +1,4 @@
-# Small Town Systems: design system ("Building blocks", A v2)
+# Small Town Systems: design system ("Building blocks", A v3)
 
 The site is built around the logo cube. One cube is one page, so the price list is drawn in cubes. Everything else stays quiet: one typeface, one action color, concrete-grey pages, white cards. The tokens below live as CSS variables in `public/css/site.css`; pages use the names, never raw values.
 
@@ -52,17 +52,27 @@ Sentence case everywhere. No all-caps labels and no eyebrow text above headings.
 
 ## Components
 
-- **Header**: cube and name on the left, three links, and a teal "Get a price" button. On phones the links drop to a second row; nothing is hidden behind a menu.
-- **Buttons**: primary (teal), line (ink outline), and a text link (`.link-more`, underlined, 44px tall). One style per job: every "Get a price" is teal.
-- **Hero lockup** (home only): the cube and "Small Town Systems" as one unit. The cube's top meets the cap height of the first line and its bottom sits on the baseline of the second. On load the cube settles into place once; after that it hops a little now and then. With reduced motion, nothing moves.
-- **Price card**: a cube model (one cube per page) on a model base, the plan name, "Up to N pages", then two separate boxes: "To build, paid once" (outlined, big figure) and "Then every month" (tinted, smaller teal figure). Custom shows a dashed cube.
-- **Service cards**: Websites on white and wider, Office systems on `--steel`. Three or four benefits each, with a link to the detail page.
-- **Get a price form**: two steps. Step one has four chips; step two has the fields. Without JavaScript both steps show as one form.
-- **Phone frame**: dark bezel and a soft shadow. Used for the real Keim screenshot and the office-system examples.
-- **Footer**: cube and name, one line about the business, the same links as the header.
+- **Header**: cube and name on the left, Websites and Prices, and a teal "Get a price" button. On phones the two links drop to a second row. Office systems is linked from the footer only.
+- **Buttons**: primary (teal), light (white, on dark or teal bands), and a text link (`.link-more`, underlined, 44px tall). Every "Get a price" is teal or, on a teal band, white.
+- **Home hero**: one plain sentence (the h1), the starting price, "Get a price". Beside it, the signature graphic: blocks in the cube colors slide in and assemble into a small website in a browser frame, then a phone frame slides in with the same site. CSS only, once on load, sized with container units so it never shifts the layout.
+- **Bands, for rhythm**: the page alternates grey (`--page`), a full-width dark band (`--ink`) for the Keim proof, a full-width white band (`--paper`) for prices, a small rounded `--steel` band for office systems, and a full-width teal band to close inner pages. The Keim devices overlap from the dark band into the next one.
+- **Lists, not boxes**: "what you get" and "what we set up" are ruled lists (2px ink rule above each item). Fine print (monthly list, terms) is the same.
+- **Price card**: a cube model (one cube per page) on a model base, the plan name, "Up to N pages", then "To build, paid once" (white box, big figure) and "Then every month" (tinted box, smaller teal figure). Custom shows a dashed cube.
+- **How it works**: three numbered teal stops on one line (a vertical line on phones). No cards.
+- **Get a price form**: two steps. Checkbox chips (square marks) for needs, radio chips (round marks) for plan and best way to reach. Without JavaScript both steps show as one form.
+- **Device frames**: a browser frame (grey bar, three dots) and a phone frame (dark bezel). Used for the hero graphic, the real Keim screenshots and the office-system examples.
+- **Footer**: cube and name, one line about the business, links including Office systems.
+
+## Motion
+
+- Once on load: the hero blocks assemble (about 2 seconds).
+- Once on view: the price cubes stack up, bottom row first; the Keim devices slide in.
+- On scroll: the hero phone drifts up a few pixels.
+- Now and then: the header cube hops (never spins).
+- Reduced motion: nothing moves; everything is shown in its final place. If the motion script fails to load, the page shows everything after 3 seconds.
 
 ## Imagery
 
 - The cube (exact geometry from `public/img/sts-cube.svg`) and cube models drawn from it. No icon set and no illustrations.
-- Real photos only: Keim's building and a real screenshot of the Keim site. No stock photos.
+- Real screenshots of the Keim site, on a computer and a phone. No stock photos.
 - The office-system phones are drawn in HTML and labelled "Example".

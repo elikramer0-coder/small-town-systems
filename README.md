@@ -8,16 +8,19 @@ Plain static HTML and CSS, one small script for the form, no framework, no build
 
 ```
 public/                    the site, served as-is
-  index.html               Home: name and cube, what we do, prices, the Keim site, how it works, the form
+  index.html               Home: one-sentence hero with the blocks that build a website, what you get, the Keim site
+                           (dark band), prices (white band), how it works, office systems (small band), the form
   websites.html            Websites: everything a site includes, the Keim site, prices
-  office-systems.html      Office systems: Notion + AI, two example phones, priced per job
+  office-systems.html      Office systems: Notion + AI, two example phones, priced per job (linked from the footer only)
   prices.html              Prices: the four sizes, what building includes, every month, the terms
   contact.html             Get a price: the two-step form
   404.html                 Not found (noindex; Cloudflare serves it with a 404 status)
   css/site.css             all styles; the design tokens are CSS variables at the top
   js/form.js               the two-step "Get a price" form
+  js/motion.js             one-time motion: price cubes stack up, the Keim devices slide in, the hero phone drifts
   fonts/                   Sora, self-hosted (one variable woff2) and its license
-  img/                     sts-cube.svg (the logo, exact source), keim-shop.jpg, keim-site-phone.webp,
+  img/                     sts-cube.svg (the logo, exact source), keim-site-desktop.webp and keim-site-phone.webp
+                           (real screenshots of the Keim site), keim-shop.jpg,
                            og.png (social preview), logo-512.png, favicons
   favicon.svg              the cube
   _headers, _redirects     security headers and font caching; /systems and /concepts/* redirects
@@ -35,7 +38,7 @@ DESIGN.md                  colors, type, spacing, components
 
 Pages use clean URLs (`/websites`, not `/websites.html`), as Cloudflare Pages serves them. The header and footer are the same on every page; a check enforces it, so change them everywhere at once.
 
-Not used by the site, kept because they are Eli's source files: `public/img/sts-town.png` (the town picture) and `public/img/sts-logo-blocks.svg` (the old three-cube logo). Delete them if they are no longer wanted.
+Not used by the site, kept because they are Eli's source files: `public/img/sts-town.png` (the town picture), `public/img/sts-logo-blocks.svg` (the old three-cube logo) and `public/img/keim-shop.jpg`. Delete them if they are no longer wanted.
 
 ## Run it locally
 
@@ -60,9 +63,15 @@ Every price, plan name and "what's included" line lives in `pricing.json`. To ch
 
 ## The "Get a price" form
 
-Step 1, "What do you need?", offers four choices (any number): New website, Fix or replace my website, Google listing & reviews, Notion + AI. Step 2 asks for a name (required), a business name (optional), an email or a phone (at least one), and anything else (optional). Links can preselect a choice: `/contact?need=website`, `fix`, `google` or `notion`.
+Step 1, "What do you need?" (tap any): New website, Fix or replace my website, Google listing & reviews, Notion + AI setup, Something else. "Something else" opens a write-in box. Then, still in step 1: **Business name and town** (one box, required; area or state is fine), **Your website now** (optional), and **Which plan looks right?** (the plan names from `pricing.json`, plus Not sure; optional).
 
-Without JavaScript both steps show as one form, and the function sends the visitor back to the page with `#sent` or `#not-sent`. The lead email lists the choices, and replies go to the visitor's email when they gave one.
+Step 2, "How do we reach you?": **Name** (required), **Phone or email** (one box, required; a phone needs 7 or more digits, an email an @ and a domain), **Best way to reach you** (Call, Text or Email; optional), **Anything else?** (optional).
+
+The lead email lists every answer, including the ones left empty. When the visitor gives an email, replies go to it. Links can preselect a choice: `/contact?need=website`, `fix`, `google`, `notion` or `other`. Without JavaScript both steps and the write-in box show as one form, and the function sends the visitor back with `#sent` or `#not-sent`.
+
+## Motion
+
+The hero blocks assemble once on load (CSS only). The price cubes stack up and the Keim devices slide in once, when they scroll into view, and the hero phone drifts a little on scroll (`js/motion.js`). An inline line in the page head turns these on only when the visitor has not asked for reduced motion; if `motion.js` never loads, it switches them off after 3 seconds so nothing stays hidden. With reduced motion, nothing moves.
 
 ## Checks (`npm test`)
 
@@ -71,8 +80,8 @@ Without JavaScript both steps show as one form, and the function sends the visit
 3. No phone number in `public/`, `functions/` or this README.
 4. No emoji, first-person intro, reviews or roofing-trade words in the site.
 5. Every image has alt text. Every cube on every page, and `favicon.svg`, is the exact geometry of `public/img/sts-cube.svg`.
-6. Every page: no email address, no personal name, a canonical link (not the 404), noindex only on the 404, listed in `sitemap.xml`, the same header and footer, and prices that match `pricing.json`. The form offers exactly the four approved choices.
-7. The contact function: the four choices (unknown ones dropped), name required, email or phone required, bad email refused, honeypot swallowed, Turnstile required, missing env vars refused, one email through Resend with the right subject, body and reply-to, and safe return paths for no-JavaScript posts.
+6. Every page: no email address, no personal name, a canonical link (not the 404), noindex only on the 404, listed in `sitemap.xml`, the same header and footer, and prices that match `pricing.json`. The form has exactly the five approved choices, the plan names from `pricing.json` plus Not sure, Call / Text / Email, and every approved field.
+7. The contact function: business and town, name, and phone or email required; a bad phone or email refused; unknown choices dropped; honeypot swallowed (and a real website answer not mistaken for it); Turnstile required; missing env vars refused; one email through Resend that shows every answer, with the right subject and reply-to; safe return paths for no-JavaScript posts.
 
 ## Cloudflare Pages setup
 

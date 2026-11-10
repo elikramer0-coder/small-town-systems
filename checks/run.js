@@ -236,14 +236,23 @@ async function checkNewPages(pages) {
   }
 
   // the "Get a price" form offers exactly the four approved choices, in order
-  const NEEDS = ['New website', 'Fix or replace my website', 'Google listing &amp; reviews', 'Notion + AI'];
+  const NEEDS = ['New website', 'Fix or replace my website', 'Google listing &amp; reviews', 'Notion + AI setup', 'Something else'];
   let forms = 0;
   for (const f of pages) {
     const html = await fs.readFile(f, 'utf8');
     for (const m of html.matchAll(/<form class="get-price"[\s\S]*?<\/form>/g)) {
       forms += 1;
       const values = [...m[0].matchAll(/name="needs" value="([^"]+)"/g)].map((x) => x[1]);
-      check(JSON.stringify(values) === JSON.stringify(NEEDS), `${path.relative(ROOT, f)}: form choices are the approved four`, `found ${values.join(' | ')}`);
+      check(JSON.stringify(values) === JSON.stringify(NEEDS), `${path.relative(ROOT, f)}: form choices are the approved five`, `found ${values.join(' | ')}`);
+      const plans = [...m[0].matchAll(/name="plan"[^>]*value="([^"]+)"/g)].map((x) => x[1]);
+      const names = pricing.names.sets[pricing.names.use];
+      const wantPlans = [names.starter, names.standard, names.large, 'Not sure'];
+      check(JSON.stringify(plans) === JSON.stringify(wantPlans), `${path.relative(ROOT, f)}: plan choices are the price-file names plus Not sure`, `found ${plans.join(' | ')}`);
+      const reach = [...m[0].matchAll(/name="reach_by" value="([^"]+)"/g)].map((x) => x[1]);
+      check(JSON.stringify(reach) === JSON.stringify(['Call', 'Text', 'Email']), `${path.relative(ROOT, f)}: best way to reach is Call, Text, Email`);
+      for (const field of ['business', 'current_site', 'needs_other', 'name', 'contact', 'message']) {
+        check(new RegExp(`name="${field}"`).test(m[0]), `${path.relative(ROOT, f)}: form has the ${field} field`);
+      }
     }
   }
   check(forms >= 2, `"Get a price" form on the home and contact pages (${forms} found)`);
@@ -270,7 +279,12 @@ async function checkContactFunction() {
     LEAD_FROM: 'Small Town Systems <leads@example.com>',
     TURNSTILE_SECRET_KEY: 'ts_test',
   };
-  const GOOD = { needs: ['New website', 'Google listing & reviews'], name: 'Pat', business: 'Main Street Hardware', email: 'pat@example.com', phone: '', message: 'Our old site is slow.', 'cf-turnstile-response': 'token' };
+  const GOOD = {
+    needs: ['New website', 'Google listing & reviews', 'Something else'], needs_other: 'A booking calendar',
+    business: 'Main Street Hardware, Hesston', current_site: 'oldsite.example', plan: 'Premium',
+    name: 'Pat', contact: 'pat@example.com', reach_by: 'Email', message: 'Our old site is slow.',
+    'cf-turnstile-response': 'token',
+  };
 
   const calls = [];
   let turnstileSays = true;
@@ -308,36 +322,43 @@ async function checkContactFunction() {
   }
 
   try {
-    let r = await post({ ...GOOD, name: '' });
-    check(r.res.status === 400 && r.data?.error === 'missing' && r.data.fields?.includes('name'), 'missing name -> 400 missing');
-    check(r.resendCalls.length === 0, 'missing name -> nothing sent');
+    let r;
+    for (const key of ['business', 'name', 'contact']) {
+      r = await post({ ...GOOD, [key]: '' });
+      check(r.res.status === 400 && r.data?.error === 'missing' && r.data.fields?.includes(key) && r.resendCalls.length === 0, `missing ${key} -> 400 missing, nothing sent`);
+    }
 
-    r = await post({ ...GOOD, email: '', phone: '' });
-    check(r.res.status === 400 && r.data?.error === 'missing' && r.data.fields?.includes('email_or_phone'), 'no email and no phone -> 400 missing');
+    r = await post({ ...GOOD, contact: '620 555 0199', reach_by: 'Text' });
+    check(r.res.status === 200 && r.data?.ok === true, 'a phone number in "Phone or email" -> accepted');
+    check(r.resendCalls.length === 1 && !('reply_to' in r.resendCalls[0].body), 'phone -> sent, with no reply-to');
 
-    r = await post({ ...GOOD, email: '', phone: '555 0100' });
-    check(r.res.status === 200 && r.data?.ok === true, 'phone only, no email -> accepted');
-    check(r.resendCalls.length === 1 && !('reply_to' in r.resendCalls[0].body), 'phone only -> sent, with no reply-to');
+    for (const bad of ['12345', 'pat@', 'call me']) {
+      r = await post({ ...GOOD, contact: bad });
+      check(r.res.status === 400 && r.data?.error === 'contact', `"${bad}" as phone or email -> 400 contact`);
+    }
 
-    r = await post({ ...GOOD, email: 'not-an-email' });
-    check(r.res.status === 400 && r.data?.error === 'email', 'bad email -> 400 email');
+    r = await post({ ...GOOD, needs: [], needs_other: '', current_site: '', plan: '', reach_by: '', message: '' });
+    check(r.res.status === 200, 'only the required fields -> accepted');
+    const bare = r.resendCalls[0]?.body?.text || '';
+    check(/What they need: \(nothing ticked\)/.test(bare) && /Website now: \(not given\)/.test(bare) && /Plan that looks right: \(not picked\)/.test(bare) && /Best way to reach them: \(not picked\)/.test(bare), 'empty optional answers say so in the email');
 
-    r = await post({ ...GOOD, needs: [] , message: '' });
-    check(r.res.status === 200, 'nothing ticked and no message -> still accepted (name + email is enough)');
+    r = await post({ ...GOOD, needs: ['New website', 'Free iPhone', 'Notion + AI setup'], reach_by: 'Carrier pigeon' });
+    const odd = r.resendCalls[0]?.body?.text || '';
+    check(/What they need: New website, Notion \+ AI setup\n/.test(odd), 'unknown choices are dropped; known ones are listed in the email');
+    check(/Best way to reach them: \(not picked\)/.test(odd), 'an unknown "best way" is dropped');
 
-    r = await post({ ...GOOD, needs: ['New website', 'Free iPhone', 'Notion + AI'] });
-    check(/What they need: New website, Notion \+ AI\n/.test(r.resendCalls[0]?.body?.text || ''), 'unknown choices are dropped; known ones are listed in the email');
-
-    r = await post({ ...GOOD, website: 'http://spam.example' });
+    r = await post({ ...GOOD, hp_extra: 'http://spam.example' });
     check(r.res.status === 200 && r.data?.ok === true, 'honeypot filled -> fake 200 so the bot moves on');
     check(r.resendCalls.length === 0 && r.turnstileCalls.length === 0, 'honeypot filled -> nothing sent, nothing verified');
+
+    r = await post({ ...GOOD, current_site: 'https://www.example.com/old-site' });
+    check(r.res.status === 200, 'a real "Your website now" answer is not mistaken for the honeypot');
 
     r = await post({ ...GOOD, message: 'x'.repeat(2001) });
     check(r.res.status === 400 && r.data?.error === 'too_long', 'oversized field -> 400 too_long');
 
     r = await post(GOOD, { env: {} });
-    check(r.res.status === 500 && r.data?.error === 'not_configured', 'missing env vars -> 500 not_configured');
-    check(r.resendCalls.length === 0, 'missing env vars -> nothing sent');
+    check(r.res.status === 500 && r.data?.error === 'not_configured' && r.resendCalls.length === 0, 'missing env vars -> 500 not_configured, nothing sent');
 
     r = await post({ ...GOOD, 'cf-turnstile-response': '' });
     check(r.res.status === 400 && r.data?.error === 'turnstile', 'no Turnstile token -> 400 turnstile');
@@ -352,11 +373,13 @@ async function checkContactFunction() {
     check(r.turnstileCalls.length === 1, 'good submission -> Turnstile verified once');
     const sent = r.resendCalls[0]?.body;
     check(r.resendCalls.length === 1, 'good submission -> one email through Resend');
-    check(sent?.to?.[0] === 'eli@smalltownsystems.com', 'LEAD_TO unset -> defaults to eli@smalltownsystems.com');
-    check(sent?.reply_to === GOOD.email, 'reply-to is the visitor');
+    check(sent?.to?.[0] === 'eli@smalltownsystems.com', 'LEAD_TO unset -> defaults to the owner address');
+    check(sent?.reply_to === GOOD.contact, 'an email in "Phone or email" becomes the reply-to');
     check(sent?.from === ENV.LEAD_FROM, 'from is LEAD_FROM');
-    check(typeof sent?.text === 'string' && [GOOD.name, GOOD.business, GOOD.email, GOOD.message, 'New website, Google listing & reviews'].every((t) => sent.text.includes(t)), 'email body carries name, business, email, needs and message');
-    check(sent?.subject === 'New lead: Pat, Main Street Hardware', 'subject names the person and the business');
+    const every = ['What they need: New website, Google listing & reviews, Something else', 'Something else: A booking calendar', 'Business and town: Main Street Hardware, Hesston', 'Website now: oldsite.example', 'Plan that looks right: Premium', 'Name: Pat', 'Phone or email: pat@example.com', 'Best way to reach them: Email', 'Our old site is slow.'];
+    const missingAnswers = every.filter((t) => !(sent?.text || '').includes(t));
+    check(missingAnswers.length === 0, 'the lead email shows every answer', `missing: ${missingAnswers.join(' / ')}`);
+    check(sent?.subject === 'New lead: Pat, Main Street Hardware, Hesston', 'subject names the person and the business');
     check(r.resendCalls[0].headers.authorization === 'Bearer re_test', 'Resend key sent as bearer token');
 
     r = await post(GOOD, { env: { ...ENV, LEAD_TO: 'other@example.com' } });
@@ -370,12 +393,9 @@ async function checkContactFunction() {
     r = await post(GOOD, { json: false });
     check(r.res.status === 303 && r.res.headers.get('location') === 'https://smalltownsystems.com/contact#sent', 'plain form post -> redirect to /contact#sent');
     r = await post({ ...GOOD, name: '' }, { json: false });
-    check(r.res.status === 303 && r.res.headers.get('location') === 'https://smalltownsystems.com/contact#error', 'plain form post with error -> redirect to /contact#error');
-
-    r = await post({ ...GOOD, _return: '/concepts/a' }, { json: false });
-    check(r.res.status === 303 && r.res.headers.get('location') === 'https://smalltownsystems.com/concepts/a#sent', 'plain post with _return -> back to that page #sent');
-    r = await post({ ...GOOD, name: '', _return: '/concepts/a' }, { json: false });
-    check(r.res.headers.get('location') === 'https://smalltownsystems.com/concepts/a#not-sent', 'plain post with _return and an error -> back to that page #not-sent');
+    check(r.res.status === 303 && r.res.headers.get('location') === 'https://smalltownsystems.com/contact#not-sent', 'plain form post with an error -> redirect to /contact#not-sent');
+    r = await post({ ...GOOD, _return: '/' }, { json: false });
+    check(r.res.headers.get('location') === 'https://smalltownsystems.com/#sent', 'plain post from the home page -> back home #sent');
     for (const evil of ['//evil.example/x', 'https://evil.example/', '/a b', 'javascript:alert(1)']) {
       r = await post({ ...GOOD, _return: evil }, { json: false });
       check(r.res.headers.get('location') === 'https://smalltownsystems.com/contact#sent', `_return "${evil}" ignored, falls back to /contact`);
