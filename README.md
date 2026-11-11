@@ -8,7 +8,7 @@ Plain static HTML and CSS, one small script for the form, no framework, no build
 
 ```
 public/                    the site, served as-is
-  index.html               Home: one-sentence hero with the blocks that build a website, what you get, the Keim site
+  index.html               Home: a three-line headline and a small website built from the logo cube, what you get, the Keim site
                            (dark band), prices (white band), how it works, office systems (small band), the form
   websites.html            Websites: everything a site includes, the Keim site, prices
   office-systems.html      Office systems: Notion + AI, two example phones, priced per job (linked from the footer only)
@@ -17,7 +17,7 @@ public/                    the site, served as-is
   404.html                 Not found (noindex; Cloudflare serves it with a 404 status)
   css/site.css             all styles; the design tokens are CSS variables at the top
   js/form.js               the two-step "Get a price" form
-  js/motion.js             one-time motion: price cubes stack up, the Keim devices slide in, the hero phone drifts
+  js/motion.js             one-time motion: price cubes stack up, the Keim devices slide in, the hero picture's layers drift on scroll
   fonts/                   Sora, self-hosted (one variable woff2) and its license
   img/                     sts-cube.svg (the logo, exact source), keim-site-desktop.webp and keim-site-phone.webp
                            (real screenshots of the Keim site), keim-shop.jpg,
@@ -57,9 +57,10 @@ For the form too: `npx wrangler pages dev public` with the env vars in a git-ign
 
 Every price, plan name and "what's included" line lives in `pricing.json`. To change one, edit it there, run `npm run prices`, commit. The script fills every spot marked `data-price="standard.setup"` or `data-list="monthly"`; no page holds a price of its own, and `npm test` fails if a page and `pricing.json` disagree.
 
-- **Plan names** come from a name set. `"use": "eli"` gives Starter, Premium, Ultra Premium; `"use": "plain"` gives Starter, Plus, Premium. Switching is that one word. Custom stays Custom.
+- **Plan names**: Starter, Plus, Premium and Custom (Eli, 2026-11-11). They come from the `"plain"` name set; the older `"eli"` set (Starter, Premium, Ultra Premium) is still in the file, but switching to it needs Eli again.
+- **Lines**: single sentences whose wording depends on what the price includes, e.g. `<span data-price="lines.logo"></span>` on the Websites page ("Need a logo? We can design one."). They follow the same draft rules.
 - **Drafts**: anything with `"confirmed": false` shows a dotted amber underline on the page, and `npm run release-check` (the **release gate** check on GitHub) stays red. Do not merge to main while it is red; merging publishes the site.
-- Confirmed by Eli on 2026-10-31: the three plan prices and page limits, Custom, office systems, the monthly list and the terms. Still drafts: the plan names and the "building it includes" list.
+- Confirmed by Eli on 2026-10-31: the three plan prices and page limits, Custom, office systems, the monthly list and the terms. On 2026-11-11: the plan names. Still drafts: the "building it includes" list and the logo sentence.
 
 ## The "Get a price" form
 
@@ -71,7 +72,7 @@ The lead email lists every answer, including the ones left empty. When the visit
 
 ## Motion
 
-The hero blocks assemble once on load (CSS only). The price cubes stack up and the Keim devices slide in once, when they scroll into view, and the hero phone drifts a little on scroll (`js/motion.js`). An inline line in the page head turns these on only when the visitor has not asked for reduced motion; if `motion.js` never loads, it switches them off after 3 seconds so nothing stays hidden. With reduced motion, nothing moves.
+The hero picture builds itself once on load (CSS only): the page settles, then each piece drops in and settles with a small spring, the cubes bottom layer first, and the phone last. On a computer, pointing at it lifts the pieces a touch. The price cubes stack up and the Keim devices slide in once, when they scroll into view, and the hero picture's layers drift apart a little on scroll (`js/motion.js`). An inline line in the page head turns these on only when the visitor has not asked for reduced motion; if `motion.js` never loads, it switches them off after 3 seconds so nothing stays hidden. With reduced motion, nothing moves.
 
 ## Checks (`npm test`)
 
@@ -79,8 +80,8 @@ The hero blocks assemble once on load (CSS only). The price cubes stack up and t
 2. No broken internal links, images, scripts, stylesheets or anchors.
 3. No phone number in `public/`, `functions/` or this README.
 4. No emoji, first-person intro, reviews or roofing-trade words in the site.
-5. Every image has alt text. Every cube on every page, and `favicon.svg`, is the exact geometry of `public/img/sts-cube.svg`.
-6. Every page: no email address, no personal name, a canonical link (not the 404), noindex only on the 404, listed in `sitemap.xml`, the same header and footer, and prices that match `pricing.json`. The form has exactly the five approved choices, the plan names from `pricing.json` plus Not sure, Call / Text / Email, and every approved field.
+5. Every image has alt text. Every cube on every page, and `favicon.svg`, is the exact geometry of `public/img/sts-cube.svg`. The hero picture contains the exact logo cube, every face in the logo colors sits on the logo's isometric grid, it never loops, it reserves its space, and reduced motion shows it still.
+6. Every page: no email address, no personal name, a canonical link (not the 404), noindex only on the 404, listed in `sitemap.xml`, the same header and footer, and prices that match `pricing.json`. The form has exactly the five approved choices, the plan names from `pricing.json` plus Not sure, Call / Text / Email, and every approved field. The plan names are Starter / Plus / Premium / Custom and confirmed; the logo sentence on the Websites page comes from `pricing.json` with its draft mark.
 7. The contact function: business and town, name, and phone or email required; a bad phone or email refused; unknown choices dropped; honeypot swallowed (and a real website answer not mistaken for it); Turnstile required; missing env vars refused; one email through Resend that shows every answer, with the right subject and reply-to; safe return paths for no-JavaScript posts.
 
 ## Cloudflare Pages setup

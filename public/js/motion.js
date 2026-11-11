@@ -18,16 +18,16 @@
     targets.forEach(function (el) { el.classList.add('is-in'); });
   }
 
-  // The hero phone drifts up a little as the hero scrolls away.
+  // The hero picture's layers drift apart a little as the hero scrolls away (CSS reads --sp, 0 to 1).
   var hero = document.querySelector('.hero');
-  var phone = document.querySelector('.mock-phone');
-  if (!hero || !phone) return;
+  var art = document.querySelector('.hero-art');
+  if (!hero || !art) return;
   var ticking = false;
   function update() {
     ticking = false;
     var r = hero.getBoundingClientRect();
     var p = Math.min(Math.max(-r.top / Math.max(r.height, 1), 0), 1);
-    phone.style.setProperty('--py', (p * -36).toFixed(1) + 'px');
+    art.style.setProperty('--sp', p.toFixed(3));
   }
   window.addEventListener('scroll', function () {
     if (!ticking) { ticking = true; requestAnimationFrame(update); }

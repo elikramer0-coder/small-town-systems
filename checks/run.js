@@ -7,6 +7,8 @@
 //     and no roofing-trade words in the site itself (the examples must read as mixed trades)
 //  5. every <img> has alt text; the cube logo on every page and in favicon.svg is the exact geometry
 //     of public/img/sts-cube.svg
+//  5d. the home hero picture: the exact logo cube is in it, every logo-colored face is on the logo's isometric grid,
+//      it plays once, and reduced motion shows it still
 //  5c. every page: no email address, no personal name, canonical link (404 excepted), noindex only on
 //     the 404, listed in sitemap.xml, the same header and footer, and prices that match pricing.json;
 //     every "Get a price" form offers exactly the four approved choices
@@ -193,6 +195,44 @@ async function checkLogo(pages) {
   }
 }
 
+// ---------- 5d. the home hero picture ----------
+// Built from the logo cube: the real logo (letters and all) is in it, every face in the logo's colors sits on the
+// logo's isometric grid (edges either upright or at the logo's 60/103.92 slope), and it never loops.
+async function checkHero() {
+  console.log('\nHome hero picture');
+  const html = await fs.readFile(path.join(PUBLIC, 'index.html'), 'utf8');
+  const svg = (html.match(/<svg class="iso"[\s\S]*?<\/svg>/) || [''])[0];
+  check(svg.length > 0, 'index.html: the hero picture is an inline SVG');
+  const src = await fs.readFile(path.join(PUBLIC, 'img', 'sts-cube.svg'), 'utf8');
+  const parts = [...src.matchAll(/<(?:polygon|path)\b[^>]*\/>/g)].map((m) => m[0]);
+  check(parts.every((part) => svg.includes(part)), 'hero picture contains the exact logo cube, letters included');
+  const LOGO_FACES = ['#0B5C67', '#3A3F44', '#5B6268'];
+  const SLOPE = 60 / 103.92;
+  let faces = 0;
+  let offGrid = 0;
+  for (const m of svg.matchAll(/<polygon points="([^"]+)" fill="(#[0-9A-F]{6})"\/>/gi)) {
+    if (!LOGO_FACES.includes(m[2].toUpperCase())) continue;
+    faces += 1;
+    const p = m[1].trim().split(/\s+/).map((xy) => xy.split(',').map(Number));
+    for (let i = 0; i < p.length; i += 1) {
+      const [x1, y1] = p[i];
+      const [x2, y2] = p[(i + 1) % p.length];
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const upright = Math.abs(dx) < 0.15;
+      const iso = Math.abs(dx) > 1 && Math.abs(Math.abs(dy / dx) - SLOPE) < 0.02;
+      if (!upright && !iso) offGrid += 1;
+    }
+  }
+  check(faces >= 60 && offGrid === 0, `hero picture: ${faces} cube faces in the logo colors, all on the logo's isometric grid`, `${offGrid} edge(s) off the grid`);
+  const css = await fs.readFile(path.join(PUBLIC, 'css', 'site.css'), 'utf8');
+  const looping = css.split('\n').filter((line) => /\.iso|iso-/.test(line) && /infinite/.test(line));
+  check(looping.length === 0, 'hero picture animation plays once (nothing loops)', looping.join(' / '));
+  const reduced = (css.match(/@media \(prefers-reduced-motion: reduce\) \{[\s\S]*?\n\}/) || [''])[0];
+  check(/\.iso \.ib/.test(reduced) && /animation: none/.test(reduced) && /translate: none/.test(reduced), 'reduced motion: the hero picture shows its finished frame, still');
+  check(/class="assemble"[^>]*style="aspect-ratio:\d+ \/ \d+"/.test(html), 'hero picture reserves its space (aspect ratio set), so it cannot shift the layout');
+}
+
 // ---------- 5c. new-page rules and prices ----------
 async function checkNewPages(pages) {
   console.log('\nNew pages and prices');
@@ -256,6 +296,15 @@ async function checkNewPages(pages) {
     }
   }
   check(forms >= 2, `"Get a price" form on the home and contact pages (${forms} found)`);
+
+  // plan names are Eli's choice (2026-11-11), and copy that depends on what the price includes stays a draft until he says
+  const names = pricing.names.sets[pricing.names.use];
+  check(pricing.names.confirmed === true && [names.starter, names.standard, names.large, names.custom].join(' / ') === 'Starter / Plus / Premium / Custom',
+    'plan names: Starter / Plus / Premium / Custom, confirmed', `found ${[names.starter, names.standard, names.large, names.custom].join(' / ')}`);
+  const websites = await fs.readFile(path.join(PUBLIC, 'websites.html'), 'utf8');
+  const logoLine = websites.match(/<span data-price="lines\.logo"( data-draft)?>([^<]*)<\/span>/);
+  check(Boolean(logoLine) && Boolean(logoLine[1]) === (pricing.lines.logo.confirmed !== true),
+    `websites page: the logo sentence comes from pricing.json and is marked ${pricing.lines.logo.confirmed === true ? 'confirmed' : 'draft'}`);
   let drift = 0;
   let stamped = 0;
   for (const f of pages) {
@@ -421,6 +470,7 @@ try {
   await checkForbiddenContent();
   await checkAltText(pages);
   await checkLogo(pages);
+  await checkHero();
   await checkNewPages(pages);
   await checkContactFunction();
 } finally {

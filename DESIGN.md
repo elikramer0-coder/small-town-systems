@@ -32,7 +32,7 @@ One family: **Sora**, self-hosted as one variable file (`public/fonts/sora-latin
 
 | Use | Size | Weight | Line height | Tracking |
 | --- | --- | --- | --- | --- |
-| Hero name (lockup) | 44 to 128px (`10.4vw`) | 700 | 0.9 | -0.05em |
+| Home headline (h1) | 27 to 56px, sized to its column so its three set lines never rewrap | 700 | 1.06 | -0.035em |
 | Page title (h1) | 42 to 88px | 700 | 0.95 | -0.05em |
 | Section title (h2) | 30 to 48px | 700 | 1.05 | -0.035em |
 | Card title (h3) | 20px, 24 to 30px in service cards | 600 to 700 | 1.25 | -0.015em |
@@ -54,20 +54,21 @@ Sentence case everywhere. No all-caps labels and no eyebrow text above headings.
 
 - **Header**: cube and name on the left, Websites and Prices, and a teal "Get a price" button. On phones the two links drop to a second row. Office systems is linked from the footer only.
 - **Buttons**: primary (teal), light (white, on dark or teal bands), and a text link (`.link-more`, underlined, 44px tall). Every "Get a price" is teal or, on a teal band, white.
-- **Home hero**: one plain sentence (the h1), the starting price, "Get a price". Beside it, the signature graphic: blocks in the cube colors slide in and assemble into a small website in a browser frame, then a phone frame slides in with the same site. CSS only, once on load, sized with container units so it never shifts the layout.
+- **Home hero**: a three-line headline ("Websites built for / your business. / Kept running for you."), one muted line on who it is for, the starting price in bold, "Get a price". Beside it, the signature picture: a small website and its phone version as an isometric model built from the logo cube. True isometric on the logo's own grid, cubes in the logo's three face colors with light edges (like the price models), the real logo cube as the site's logo, and a stepped pyramid of cubes as its picture (the phone shows the same pyramid, smaller). The page reads in the direction of the T on the logo's top. One inline SVG; its space is reserved with an aspect ratio, so it never shifts the layout.
 - **Bands, for rhythm**: the page alternates grey (`--page`), a full-width dark band (`--ink`) for the Keim proof, a full-width white band (`--paper`) for prices, a small rounded `--steel` band for office systems, and a full-width teal band to close inner pages. The Keim devices overlap from the dark band into the next one.
 - **Lists, not boxes**: "what you get" and "what we set up" are ruled lists (2px ink rule above each item). Fine print (monthly list, terms) is the same.
 - **Price card**: a cube model (one cube per page) on a model base, the plan name, "Up to N pages", then "To build, paid once" (white box, big figure) and "Then every month" (tinted box, smaller teal figure). Custom shows a dashed cube.
 - **How it works**: three numbered teal stops on one line (a vertical line on phones). No cards.
 - **Get a price form**: two steps. Checkbox chips (square marks) for needs, radio chips (round marks) for plan and best way to reach. Without JavaScript both steps show as one form.
-- **Device frames**: a browser frame (grey bar, three dots) and a phone frame (dark bezel). Used for the hero graphic, the real Keim screenshots and the office-system examples.
+- **Device frames**: a browser frame (grey bar, three dots) and a phone frame (dark bezel). Used for the real Keim screenshots and the office-system examples.
 - **Footer**: cube and name, one line about the business, links including Office systems.
 
 ## Motion
 
-- Once on load: the hero blocks assemble (about 2 seconds).
+- Once on load: the hero picture builds itself (about 2.5 seconds). The page settles, each piece drops in and settles with one small spring, cubes bottom layer first, the phone last. Nothing loops.
+- On a computer, pointing at the hero picture lifts its pieces a few pixels, the cubes in a short ripple.
 - Once on view: the price cubes stack up, bottom row first; the Keim devices slide in.
-- On scroll: the hero phone drifts up a few pixels.
+- On scroll: the hero picture's layers drift apart a little (the phone most).
 - Now and then: the header cube hops (never spins).
 - Reduced motion: nothing moves; everything is shown in its final place. If the motion script fails to load, the page shows everything after 3 seconds.
 

@@ -1,14 +1,14 @@
 {
-  "_read_me": "Every price, plan name and 'what's included' line on the site comes from this file. Change it, run `npm run prices`, commit. Anything with \"confirmed\": false is a draft: it shows with a dotted amber underline, and the release gate (`npm run release-check`) fails until it is set to true. Prices, the monthly list and the terms were confirmed by Eli on 2026-10-31.",
+  "_read_me": "Every price, plan name and 'what's included' line on the site comes from this file. Change it, run `npm run prices`, commit. Anything with \"confirmed\": false is a draft: it shows with a dotted amber underline, and the release gate (`npm run release-check`) fails until it is set to true. Prices, the monthly list and the terms were confirmed by Eli on 2026-10-31; the plan names (Starter, Plus, Premium, Custom) on 2026-11-11.",
   "plans": {
     "starter":  { "pages": 4,  "setup": 300,  "monthly": 100, "confirmed": true },
     "standard": { "pages": 7,  "setup": 500,  "monthly": 200, "confirmed": true },
     "large":    { "pages": 15, "setup": 1000, "monthly": 350, "confirmed": true }
   },
   "names": {
-    "_read_me": "To switch the plan names, change \"use\" to the other set. The keys starter/standard/large are internal and never shown.",
-    "use": "eli",
-    "confirmed": false,
+    "_read_me": "Eli chose the \"plain\" set on 2026-11-11. \"confirmed\" covers the set in use, so switching sets needs Eli again. The keys starter/standard/large are internal and never shown.",
+    "use": "plain",
+    "confirmed": true,
     "sets": {
       "eli":   { "starter": "Starter", "standard": "Premium", "large": "Ultra Premium", "custom": "Custom" },
       "plain": { "starter": "Starter", "standard": "Plus",    "large": "Premium",       "custom": "Custom" }
@@ -16,6 +16,10 @@
   },
   "custom":  { "price": "Priced per job", "confirmed": true },
   "systems": { "price": "Priced per job", "confirmed": true },
+  "lines": {
+    "_read_me": "Single sentences on the pages that depend on what's in the price. Use one with <span data-price=\"lines.logo\"></span>.",
+    "logo": { "text": "Need a logo? We can design one.", "confirmed": false }
+  },
   "lists": {
     "setup": {
       "confirmed": false,
@@ -24,7 +28,7 @@
         "Works well on phones, loads fast, and is easy for everyone to use",
         "A contact or estimate form that emails you or prints at your shop",
         "Google basics: page titles and descriptions, the business details Google reads, a sitemap and Search Console",
-        "Your Google Business Profile fixed",
+        "Your Google Business Profile set up",
         "Your domain set up. Moving from Hibu or another provider? We move your domain and point your old links to the new pages."
       ]
     },

@@ -9,6 +9,7 @@
 //   <span data-price="standard.pages"></span>    -> 5
 //   <span data-price="standard.name"></span>     -> the name from the name set in use
 //   <span data-price="custom.price"></span>      -> Priced per job
+//   <span data-price="lines.logo"></span>        -> one sentence from "lines" (copy that depends on what the price includes)
 //   <ul data-list="monthly"></ul>                -> one <li> per item
 //   <input data-price-value="standard.name">     -> value="Premium" (form choices that send a plan name)
 // Drafts get a data-draft attribute, which the CSS marks with a dotted amber underline.
@@ -33,6 +34,11 @@ export function lookup(pricing, key) {
     const set = names.sets[names.use];
     if (!set || !(group in set)) throw new Error(`pricing.json: no name for "${group}" in name set "${names.use}"`);
     return { value: set[group], confirmed: names.confirmed === true };
+  }
+  if (group === 'lines') {
+    const line = pricing.lines && pricing.lines[field];
+    if (!line || typeof line.text !== 'string') throw new Error(`pricing.json has no line "${field}"`);
+    return { value: line.text, confirmed: line.confirmed === true };
   }
   if (pricing.plans[group]) {
     const plan = pricing.plans[group];
@@ -87,6 +93,7 @@ export function drafts(pricing) {
   for (const [id, plan] of Object.entries(pricing.plans)) if (plan.confirmed !== true) list.push(`plan "${id}" prices`);
   if (pricing.names.confirmed !== true) list.push(`plan names (set "${pricing.names.use}")`);
   for (const id of ['custom', 'systems']) if (pricing[id] && pricing[id].confirmed !== true) list.push(`"${id}" price`);
+  for (const [id, l] of Object.entries(pricing.lines || {})) if (!id.startsWith('_') && l.confirmed !== true) list.push(`line "${id}"`);
   for (const [id, l] of Object.entries(pricing.lists)) if (l.confirmed !== true) list.push(`list "${id}"`);
   return list;
 }

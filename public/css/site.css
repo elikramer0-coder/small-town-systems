@@ -125,54 +125,60 @@ h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.015em; line-height: 1
 .link-on-dark { color: #fff; }
 .link-on-dark:hover { color: var(--tint); }
 
-/* ---------- home hero: one sentence, and the blocks that build a website ---------- */
-.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: clamp(32px, 5vw, 72px); align-items: center; padding: clamp(28px, 5vw, 72px) 0 clamp(16px, 3vw, 40px); }
-.hero h1 { font-size: clamp(32px, 3.5vw, 48px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.07; }
-.hero-price { margin-top: 20px; font-size: clamp(17px, 1.6vw, 19px); color: var(--muted); }
+/* ---------- home hero: a short headline, and a small website built from the logo cube ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); gap: clamp(32px, 5vw, 72px); align-items: center; padding: clamp(28px, 5vw, 72px) 0 clamp(16px, 3vw, 40px); }
+.hero-copy { container-type: inline-size; }
+/* Three set lines. The size follows the column width, so the line breaks stay put on every screen
+   ("Kept running for you." is the longest line: 10.1em in Sora bold). */
+.hero h1 { font-size: clamp(27px, 3.9vw, 50px); font-size: min(56px, 100cqi / 10.6); font-weight: 700; letter-spacing: -0.035em; line-height: 1.06; }
+.hero h1 .hl { display: block; }
+.hero-sub { margin-top: 22px; max-width: 30em; font-size: clamp(17px, 1.5vw, 19px); }
+.hero-sub > span { display: block; text-wrap: balance; }
+.hero-sub .hs-what { color: var(--muted); }
+.hero-sub .hs-price { margin-top: 8px; font-weight: 600; }
 .hero .actions { margin-top: 28px; }
-@media (max-width: 900px) { .hero { grid-template-columns: 1fr; } .hero-art { max-width: 620px; } }
+@media (max-width: 900px) { .hero { grid-template-columns: 1fr; } .hero-art { max-width: 640px; } }
 
-.assemble { position: relative; aspect-ratio: 1.3; container-type: inline-size; }
-.mock-browser { position: absolute; left: 0; top: 2%; width: 86%; background: #fff; border-radius: 2.4cqw; overflow: hidden; box-shadow: 0 0 0 1px rgba(30, 35, 39, .06), 0 5cqw 9cqw -4cqw rgba(30, 35, 39, .34); animation: frame-in .6s cubic-bezier(.2, .8, .25, 1) both; }
-.mock-bar { display: flex; align-items: center; gap: 2cqw; height: 5.6cqw; padding: 0 2.2cqw; background: #E6EAEB; }
-.mock-dots { display: flex; gap: .9cqw; }
-.mock-dots i { width: 1.3cqw; height: 1.3cqw; border-radius: 50%; background: #B9C2C6; }
-.mock-url { flex: 1; height: 2.6cqw; max-width: 40%; border-radius: 99px; background: #fff; }
-.mock-page { position: relative; aspect-ratio: 16 / 10.4; }
-.blk { position: absolute; display: block; border-radius: .9cqw; box-shadow: 0 .35cqw 0 rgba(30, 35, 39, .16); animation: blk-in .75s cubic-bezier(.2, .85, .25, 1.12) var(--d) both; }
-.blk svg { width: 100%; height: 100%; border-radius: inherit; }
-.b-logo { left: 4%; top: 5.5%; width: 5.5%; aspect-ratio: 1; background: var(--teal); }
-.b-link { top: 9%; height: 2.6%; width: 7%; background: #C9D1D4; box-shadow: none; }
-.b-link1 { left: 52%; } .b-link2 { left: 61%; } .b-link3 { left: 70%; }
-.b-navbtn { left: 81%; top: 5.5%; width: 15%; height: 8.5%; border-radius: 99px; background: var(--teal); }
-.b-h1 { left: 4%; top: 24%; width: 40%; height: 7%; background: var(--ink); }
-.b-h1b { left: 4%; top: 34%; width: 29%; height: 7%; background: var(--ink); }
-.b-text { left: 4%; top: 46%; width: 38%; height: 3%; background: #C9D1D4; box-shadow: none; }
-.b-text2 { top: 52%; width: 31%; }
-.b-btn { left: 4%; top: 60%; width: 17%; height: 8.5%; border-radius: 99px; background: var(--teal); }
-.b-photo { left: 50%; top: 21%; width: 46%; height: 47%; border-radius: 1.4cqw; overflow: hidden; }
-.b-card { top: 76%; width: 28.6%; height: 18%; background: var(--page); }
-.b-card::before { content: ""; position: absolute; left: 8%; top: 18%; width: 14%; aspect-ratio: 1; border-radius: .5cqw; background: var(--steel-2); }
-.b-card::after { content: ""; position: absolute; left: 8%; right: 30%; bottom: 22%; height: 12%; border-radius: 99px; background: #C9D1D4; }
-.b-card1 { left: 4%; } .b-card2 { left: 35.7%; } .b-card3 { left: 67.4%; }
-.b-card2::before { background: var(--teal); }
+/* the picture: one inline SVG; every face is the logo cube's geometry and colors */
+.assemble { position: relative; }
+.iso { width: 100%; height: auto; overflow: visible; }
+.iso-lit { stroke: #fff; stroke-opacity: .5; stroke-width: 2.4; stroke-linejoin: round; }
+.iso-lit-sm { stroke-width: 1.4; }
 
-.mock-phone { position: absolute; right: 0; bottom: 0; width: 27%; aspect-ratio: 9 / 18.6; padding: 1cqw; border-radius: 4.4cqw; background: var(--ink); box-shadow: 0 6cqw 10cqw -4cqw rgba(30, 35, 39, .5); animation: phone-in .8s cubic-bezier(.2, .8, .25, 1) 1.1s both; translate: 0 var(--py, 0px); }
-.mock-phone-page { position: relative; height: 100%; border-radius: 3.5cqw; background: #fff; overflow: hidden; }
-.p-bar { left: 8%; top: 4%; width: 84%; height: 4%; background: #E6EAEB; box-shadow: none; }
-.p-photo { left: 0; top: 11%; width: 100%; height: 25%; border-radius: 0; box-shadow: none; overflow: hidden; }
-.p-h1 { left: 8%; top: 41%; width: 72%; height: 6%; background: var(--ink); }
-.p-text { left: 8%; top: 51%; width: 80%; height: 3%; background: #C9D1D4; box-shadow: none; }
-.p-btn { left: 8%; top: 59%; width: 50%; height: 6.5%; border-radius: 99px; background: var(--teal); }
-.p-card { left: 8%; top: 71%; width: 84%; height: 20%; background: var(--page); }
-
-@keyframes frame-in { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
-@keyframes blk-in {
-  from { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(.92); }
-  55% { opacity: 1; }
-  to { opacity: 1; transform: none; }
+/* plays once: the page settles, then each piece drops in and settles with a small spring */
+.iso .iso-l0 { animation: iso-rise .8s cubic-bezier(.2, .8, .25, 1) both; }
+.iso .ib { animation: iso-drop .9s linear var(--d) both; }
+.iso .ib-cube { animation-duration: .75s; }
+.iso .ib-phone { animation: iso-slide 1s cubic-bezier(.25, .9, .3, 1.06) var(--d) both; }
+@keyframes iso-rise { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+@keyframes iso-drop {
+  0% { opacity: 0; transform: translateY(-120px); animation-timing-function: cubic-bezier(.5, 0, .9, .6); }
+  15% { opacity: 1; }
+  55% { transform: translateY(9px); animation-timing-function: cubic-bezier(.3, 0, .4, 1); }
+  76% { transform: translateY(-3px); animation-timing-function: cubic-bezier(.3, 0, .4, 1); }
+  90% { transform: translateY(1px); animation-timing-function: ease-out; }
+  100% { opacity: 1; transform: none; }
 }
-@keyframes phone-in { from { opacity: 0; transform: translate(18%, 10%) rotate(4deg); } to { opacity: 1; transform: none; } }
+@keyframes iso-slide { from { opacity: 0; transform: translate(130px, 80px); } 40% { opacity: 1; } to { opacity: 1; transform: none; } }
+
+/* layers drift apart a little as the hero scrolls away (motion.js sets --sp from 0 to 1); lengths are in picture units */
+.iso-l { translate: 0 calc(var(--sp, 0) * var(--lift, 0) * -1px); }
+.iso-l1 { --lift: 16; } .iso-l2 { --lift: 40; } .iso-l3 { --lift: 24; } .iso-l4 { --lift: 72; }
+/* and on a computer, pointing at the picture lifts the pieces a touch */
+@media (hover: hover) and (pointer: fine) {
+  .iso .ib { transition: translate .55s cubic-bezier(.3, 1.45, .5, 1); }
+  .iso-l2 .ib-cube { transition-delay: calc((var(--d) - .72s) * .3); }
+  .hero-art:hover .iso-l1 .ib { translate: 0 -10px; }
+  .hero-art:hover .iso-l2 .ib { translate: 0 -22px; }
+  .hero-art:hover .iso-l3 .ib { translate: 0 -12px; }
+  .hero-art:hover .iso-l4 .ib { translate: 0 -30px; }
+}
+
+/* browser bar, used by the Keim screenshots */
+.mock-bar { display: flex; align-items: center; background: #E6EAEB; }
+.mock-dots { display: flex; }
+.mock-dots i { border-radius: 50%; background: #B9C2C6; }
+.mock-url { flex: 1; max-width: 40%; border-radius: 99px; background: #fff; }
 
 /* ---------- what you get: plain ruled lists, no boxes ---------- */
 .what { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px clamp(32px, 6vw, 88px); align-items: start; }
@@ -392,7 +398,7 @@ h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.015em; line-height: 1
 
 /* ---------- reduced motion: everything is shown in its final place ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .logo-cube, .mock-browser, .mock-phone, .blk { animation: none !important; }
-  .mock-phone { translate: none; }
+  .logo-cube, .iso .iso-l, .iso .ib { animation: none !important; transition: none !important; }
+  .iso .iso-l, .iso .ib { translate: none !important; }
   html { scroll-behavior: auto; }
 }
